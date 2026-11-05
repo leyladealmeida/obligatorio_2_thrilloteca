@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@100..900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+
+:root{
+    --rojo: #C42021;
+    --violeta: #541CB2;
+    --gris: #9E9E9E;
+}
+
+body{
+    background-color: black;
+    color: white;
+}
+
+h1{
+ font-family: "Bitcount Grid Single";
+ color: var(--violeta);
+}
+
+.caja p, body{
+    font-family: "DM Mono", monospace;
+}
