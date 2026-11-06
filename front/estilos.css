@@ -1,21 +1,1137 @@
-@import url('https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@100..900&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
-
-:root{
-    --rojo: #C42021;
-    --violeta: #541CB2;
-    --gris: #9E9E9E;
+/* --- Reseteo Global --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-body{
-    background-color: black;
-    color: white;
+:root {
+    /* Tipografías */
+    --fuente-pixel: 'Press Start 2P', monospace, sans-serif;
+    --fuente-mono: 'DM Mono', monospace, monospace;
+
+    /* Gradiente exacto de Figma */
+    --fondo-barra-degrade: linear-gradient(90deg, #4C1DB5 0%, #C21F24 100%);
+    
+    /* Paleta Windows 2000 / Y2K */
+    --color-fondo-negro: #000000;
+    --color-gris-ventana: #c3c3c3;
+    --color-panel-lila: #b9b5d1;
+    --color-borde-oscuro: #808080;
+    --color-borde-negro: #000000;
+    --color-borde-blanco: #ffffff;
+    --color-texto: #1a1a1a;
+    --color-morado-titulo: #3A0F96;
+    --color-rojo-logo: #C21F24;
+    --color-rojo-error: #e52521;
 }
 
-h1{
- font-family: "Bitcount Grid Single";
- color: var(--violeta);
+/* Fondo de Escritorio */
+.fondo-escritorio {
+    min-height: 100vh;
+    background-color: var(--color-fondo-negro);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-family: var(--fuente-mono);
+    color: var(--color-texto);
+    position: relative;
+    overflow-x: hidden;
 }
 
-.caja p, body{
-    font-family: "DM Mono", monospace;
+/* --- Ventana Base Retro Windows 2000 --- */
+.ventana-retro {
+    background-color: var(--color-gris-ventana);
+    width: 100%;
+    max-width: 1140px;
+    border-top: 2px solid var(--color-borde-blanco);
+    border-left: 2px solid var(--color-borde-blanco);
+    border-right: 2px solid var(--color-borde-negro);
+    border-bottom: 2px solid var(--color-borde-negro);
+    box-shadow: 2px 2px 0px 1px var(--color-borde-oscuro);
+    padding: 3px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ventana-acceso {
+    max-width: 980px;
+}
+
+/* --- Barra de Título con Degradado --- */
+.barra-titulo {
+    background: var(--fondo-barra-degrade);
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 4px;
+    user-select: none;
+}
+
+.texto-barra-titulo {
+    font-family: var(--fuente-pixel);
+    font-size: 11px;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.botones-sistema {
+    display: flex;
+    gap: 2px;
+}
+
+.boton-sistema {
+    width: 18px;
+    height: 18px;
+    background-color: var(--color-gris-ventana);
+    border-top: 1.5px solid var(--color-borde-blanco);
+    border-left: 1.5px solid var(--color-borde-blanco);
+    border-right: 1.5px solid var(--color-borde-negro);
+    border-bottom: 1.5px solid var(--color-borde-negro);
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+
+.boton-sistema:active {
+    border-top: 1.5px solid var(--color-borde-negro);
+    border-left: 1.5px solid var(--color-borde-negro);
+    border-right: 1.5px solid var(--color-borde-blanco);
+    border-bottom: 1.5px solid var(--color-borde-blanco);
+}
+
+/* --- Estructura de Ventana y Paneles Hundidos --- */
+.cuerpo-ventana {
+    padding: 14px;
+}
+
+.cuerpo-acceso {
+    display: grid;
+    grid-template-columns: 1.15fr 0.95fr;
+    gap: 12px;
+}
+
+.panel-lateral-izquierdo,
+.panel-formulario,
+.panel-alternar,
+.panel-lila-3d {
+    background-color: var(--color-panel-lila);
+    border-top: 2px solid var(--color-borde-oscuro);
+    border-left: 2px solid var(--color-borde-oscuro);
+    border-right: 2px solid var(--color-borde-blanco);
+    border-bottom: 2px solid var(--color-borde-blanco);
+    padding: 14px;
+}
+
+/* --- Login / Registro --- */
+.panel-lateral-izquierdo {
+    padding: 50px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 48px;
+}
+
+.envoltorio-logo {
+    text-align: center;
+}
+
+.logo-thrilloteca {
+    font-family: var(--fuente-pixel);
+    font-size: 34px;
+    font-weight: 400;
+    color: var(--color-morado-titulo);
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    letter-spacing: 1px;
+    text-shadow: 
+        3px 0px 0px var(--color-rojo-logo),
+        0px 3px 0px var(--color-rojo-logo),
+        3px 3px 0px var(--color-rojo-logo);
+}
+
+.lista-detalles {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.item-detalle {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.92rem;
+}
+
+.icono-pixel {
+    width: 10px;
+    height: 10px;
+    background-color: #1a1a1a;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.icono-marcador {
+    clip-path: polygon(20% 0%, 80% 0%, 100% 30%, 100% 100%, 70% 80%, 30% 80%, 0% 100%, 0% 30%);
+}
+
+.icono-corazon {
+    clip-path: polygon(0% 35%, 25% 0%, 50% 25%, 75% 0%, 100% 35%, 100% 65%, 50% 100%, 0% 65%);
+}
+
+.columna-derecha {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.panel-formulario {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.titulo-formulario {
+    font-family: var(--fuente-pixel);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    color: var(--color-morado-titulo);
+    text-transform: uppercase;
+}
+
+.formulario-interactivo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.fila-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.etiqueta-formulario {
+    font-size: 0.9rem;
+}
+
+.campo-retro {
+    width: 100%;
+    height: 32px;
+    background-color: #ffffff;
+    border-top: 2px solid var(--color-borde-negro);
+    border-left: 2px solid var(--color-borde-negro);
+    border-right: 1.5px solid var(--color-borde-blanco);
+    border-bottom: 1.5px solid var(--color-borde-blanco);
+    padding: 4px 8px;
+    font-family: var(--fuente-mono);
+    font-size: 0.95rem;
+    color: #000000;
+    outline: none;
+}
+
+.campo-retro::placeholder {
+    color: #7d7d7d;
+}
+
+.texto-error {
+    color: var(--color-rojo-error);
+    font-size: 0.75rem;
+    min-height: 14px;
+    display: none;
+    line-height: 1.2;
+}
+
+.texto-error.activo {
+    display: block;
+}
+
+.panel-alternar {
+    padding: 22px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pregunta-alternar {
+    font-size: 0.95rem;
+}
+
+/* --- Botones 3D Retro --- */
+.boton-retro-3d {
+    background-color: var(--color-gris-ventana);
+    border-top: 2px solid var(--color-borde-blanco);
+    border-left: 2px solid var(--color-borde-blanco);
+    border-right: 2px solid var(--color-borde-negro);
+    border-bottom: 2px solid var(--color-borde-negro);
+    padding: 4px 10px;
+    font-family: var(--fuente-mono);
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 1px 1px 0px 0px var(--color-borde-oscuro);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #000000;
+}
+
+.boton-retro-3d:active {
+    border-top: 2px solid var(--color-borde-negro);
+    border-left: 2px solid var(--color-borde-negro);
+    border-right: 2px solid var(--color-borde-blanco);
+    border-bottom: 2px solid var(--color-borde-blanco);
+    box-shadow: none;
+    transform: translate(1px, 1px);
+}
+
+.boton-ancho-completo { width: 100%; }
+.boton-mini { padding: 3px 8px; font-size: 0.75rem; }
+.boton-micro { padding: 2px 6px; font-size: 0.7rem; }
+
+/* --- Barra de Búsqueda y Pestañas --- */
+.area-herramientas-superior {
+    padding: 8px 10px 4px 10px;
+}
+
+.formulario-busqueda {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.campo-busqueda-retro {
+    flex: 1;
+    height: 28px;
+    background-color: #ffffff;
+    border-top: 2px solid var(--color-borde-negro);
+    border-left: 2px solid var(--color-borde-negro);
+    border-right: 1.5px solid var(--color-borde-blanco);
+    border-bottom: 1.5px solid var(--color-borde-blanco);
+    padding: 2px 8px;
+    font-family: var(--fuente-mono);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.navegacion-pestanas {
+    display: flex;
+    gap: 4px;
+    padding: 6px 10px 0 10px;
+}
+
+.pestana-boton {
+    background-color: var(--color-gris-ventana);
+    border-top: 2px solid var(--color-borde-blanco);
+    border-left: 2px solid var(--color-borde-blanco);
+    border-right: 2px solid var(--color-borde-negro);
+    border-bottom: none;
+    padding: 6px 14px;
+    font-family: var(--fuente-mono);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.pestana-boton.pestana-activa {
+    background-color: #ffffff;
+    border-bottom: 2px solid #ffffff;
+    position: relative;
+    top: 2px;
+    font-weight: bold;
+}
+
+/* --- Panel Central SPA --- */
+.contenedor-principal-foro {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 10px;
+    padding: 10px;
+    min-height: 520px;
+}
+
+.columna-perfil-usuario {
+    background-color: var(--color-gris-ventana);
+    border-top: 2px solid var(--color-borde-oscuro);
+    border-left: 2px solid var(--color-borde-oscuro);
+    border-right: 2px solid var(--color-borde-blanco);
+    border-bottom: 2px solid var(--color-borde-blanco);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.marco-avatar-retro {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid var(--color-borde-negro);
+    position: relative;
+    overflow: hidden;
+}
+
+.imagen-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-reemplazo-degrade {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #ff9cfb 0%, #7d52ff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icono-fantasma-pixel {
+    width: 12px;
+    height: 12px;
+    background-color: #ffffff;
+    clip-path: polygon(20% 0%, 80% 0%, 100% 30%, 100% 100%, 70% 80%, 30% 80%, 0% 100%, 0% 30%);
+}
+
+.nombre-usuario {
+    font-family: var(--fuente-pixel);
+    font-size: 11px;
+    margin-bottom: 8px;
+}
+
+.biografia-usuario {
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.acciones-perfil {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* --- Visibilidad de Vistas --- */
+.vista-seccion {
+    display: none;
+    height: 100%;
+}
+
+.vista-seccion.vista-activa {
+    display: block;
+}
+
+.subtitulo-seccion-mono {
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.subtitulo-seccion-mono.centrado { text-align: center; }
+
+.rotulo-seccion-pixel {
+    font-family: var(--fuente-pixel);
+    font-size: 11px;
+    color: var(--color-morado-titulo);
+    margin-bottom: 12px;
+}
+
+/* --- Vistas Específicas --- */
+/* Inicio */
+.cuadricula-dos-columnas {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 12px;
+    height: 100%;
+}
+
+.tarjeta-publicacion-retro {
+    background-color: #ffffff;
+    border: 1.5px solid var(--color-borde-negro);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.encabezado-publicacion, .cuerpo-publicacion { font-size: 0.8rem; margin-bottom: 6px; }
+
+.bloque-libro-destacado {
+    background: #ffffff;
+    border: 1.5px solid var(--color-borde-negro);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+}
+
+.portada-libro-ejemplo {
+    width: 100px;
+    height: 140px;
+    background: #6e0000;
+    color: #ff2a2a;
+    font-family: var(--fuente-pixel);
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--color-borde-negro);
+}
+
+/* Mi Biblioteca */
+.disposicion-biblioteca {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 10px;
+    height: 100%;
+}
+
+.grilla-libros-progreso {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.tarjeta-libro-progreso {
+    background-color: #ffffff;
+    border: 1.5px solid var(--color-borde-negro);
+    display: flex;
+    padding: 8px;
+    gap: 10px;
+}
+
+.lomo-libro {
+    width: 44px;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 2px;
+    border: 1.5px solid var(--color-borde-negro);
+    cursor: pointer;
+}
+
+.lomo-resplandor { background-color: #550a0a; }
+.lomo-it { background-color: #1e1346; }
+.lomo-misery { background-color: #0d381e; }
+.lomo-psicosis { background-color: #6e1c36; }
+
+.texto-lomo {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: var(--fuente-pixel);
+    font-size: 7px;
+    letter-spacing: 1px;
+}
+
+.detalles-libro-progreso {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.titulo-libro-tarjeta { font-family: var(--fuente-pixel); font-size: 9px; }
+.subtexto-tarjeta { font-size: 0.75rem; color: #555555; }
+.porcentaje-lectura { font-size: 0.75rem; font-weight: bold; margin-top: 4px; }
+
+.barra-bloques-retro {
+    display: flex;
+    gap: 2px;
+    height: 8px;
+    background-color: #eeeeee;
+    border: 1px solid var(--color-borde-negro);
+    padding: 1px;
+}
+
+.bloque-progreso { flex: 1; background-color: transparent; }
+.bloque-progreso.activo { background-color: var(--color-morado-titulo); }
+.paginas-lectura { font-size: 0.7rem; color: #444444; }
+
+.estanteria-libros-retro {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    height: 120px;
+    margin-top: 20px;
+}
+
+.lomo-grafico { width: 22px; border: 1.5px solid var(--color-borde-negro); }
+.barra-1 { height: 95px; background-color: #8c1d1d; }
+.barra-2 { height: 85px; background-color: #2b1d8c; }
+.barra-3 { height: 110px; background-color: #1a6332; }
+.barra-4 { height: 75px; background-color: #c22929; }
+.barra-5 { height: 90px; background-color: #4a4a4a; }
+
+.base-estante-madera {
+    height: 8px;
+    background-color: #633518;
+    border: 1.5px solid var(--color-borde-negro);
+    margin-bottom: 12px;
+}
+
+.texto-estante-fecha, .texto-estante-ayuda { font-size: 0.75rem; text-align: center; }
+.contenedor-agregar-libro-biblioteca { margin-top: 20px; display: flex; justify-content: center; }
+
+/* Mis Reseñas */
+.disposicion-dos-paneles {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 10px;
+    height: 100%;
+}
+
+.tarjeta-fila-resena {
+    background-color: #ffffff;
+    border: 1.5px solid var(--color-borde-negro);
+    padding: 10px;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.datos-fila-resena { flex: 1; }
+.encabezado-fila-resena { font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; }
+.extracto-resena { font-size: 0.75rem; line-height: 1.3; margin-bottom: 8px; }
+.botones-fila-resena { display: flex; gap: 6px; }
+
+.miniatura-portada-libro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.libro-resplandor-mini {
+    width: 60px;
+    height: 85px;
+    background-color: #6e0000;
+    color: #ff4747;
+    font-family: var(--fuente-pixel);
+    font-size: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-borde-negro);
+}
+
+.tarjeta-comentario-lateral {
+    background-color: #ffffff;
+    border: 1.5px solid var(--color-borde-negro);
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.avatar-amigo-recuadro {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #f78da7, #8ed1fc);
+    border: 1px solid var(--color-borde-negro);
+    flex-shrink: 0;
+}
+
+.cuerpo-comentario-lateral { flex: 1; }
+.autor-comentario-lateral { font-size: 0.75rem; font-weight: bold; }
+.texto-comentario-lateral { font-size: 0.7rem; line-height: 1.2; margin: 2px 0 4px 0; }
+
+/* Mis Comentarios */
+.grilla-comentarios-publicaciones {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.tarjeta-comentario-grilla {
+    background-color: #ffffff;
+    border: 1.5px solid var(--color-borde-negro);
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.cuerpo-comentario-grilla { flex: 1; }
+.titulo-origen-comentario { font-size: 0.75rem; font-weight: bold; margin-bottom: 4px; }
+.parrafo-comentario { font-size: 0.75rem; line-height: 1.3; margin-bottom: 8px; }
+.acciones-comentario-grilla { display: flex; gap: 6px; }
+
+.portada-comentario-item {
+    width: 55px;
+    height: 80px;
+    background-color: #6e0000;
+    color: #ff4747;
+    font-family: var(--fuente-pixel);
+    font-size: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-borde-negro);
+    flex-shrink: 0;
+}
+
+/* Leer Más Tarde y Explorar */
+.disposicion-leer-tarde,
+.disposicion-explorar-contenido {
+    display: grid;
+    grid-template-columns: 1fr 140px;
+    gap: 10px;
+    height: 100%;
+}
+
+.grilla-libros-pendientes,
+.grilla-libros-explorar {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.casilla-libro-guardado,
+.casilla-libro-explorar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.caja-portada-blanca {
+    width: 100%;
+    aspect-ratio: 1 / 1.5;
+    background-color: #ffffff;
+    border: 2px solid #5a3ea3;
+}
+
+.portada-clickeable {
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.portada-clickeable:hover {
+    transform: translateY(-2px);
+    border-color: #ffffff;
+}
+
+.panel-menu-lateral-derecho {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Filtros de Género en Explorar */
+.barra-filtros-genero {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-bottom: 2px;
+}
+
+.boton-filtro-genero {
+    background-color: var(--color-gris-ventana);
+    border-top: 2px solid var(--color-borde-blanco);
+    border-left: 2px solid var(--color-borde-blanco);
+    border-right: 2px solid var(--color-borde-negro);
+    border-bottom: 2px solid var(--color-borde-negro);
+    padding: 4px 18px;
+    font-family: var(--fuente-mono);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.boton-filtro-genero.filtro-activo {
+    background-color: #ffffff;
+    font-weight: bold;
+    border-top: 2px solid var(--color-borde-negro);
+    border-left: 2px solid var(--color-borde-negro);
+    border-right: 1.5px solid var(--color-borde-blanco);
+    border-bottom: 1.5px solid var(--color-borde-blanco);
+}
+
+/* --- Vistas con Elementos en Perspectiva (Detalle Libro / Reseña) --- */
+.contenedor-detalle-resena {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 12px;
+    height: 100%;
+}
+
+.panel-escenario-inclinado {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    overflow: hidden;
+    min-height: 480px;
+}
+
+.portada-inclinada-libro {
+    position: absolute;
+    left: 45px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-6deg);
+    z-index: 2;
+    filter: drop-shadow(6px 10px 14px rgba(0, 0, 0, 0.45));
+}
+
+.imagen-portada-rotada {
+    width: 220px;
+    height: 330px;
+    object-fit: cover;
+    border: 2px solid #000000;
+}
+
+.hoja-papel-resena {
+    position: relative;
+    left: 70px;
+    width: 320px;
+    min-height: 410px;
+    background-color: #ffffff;
+    border: 2px solid #000000;
+    border-radius: 12px;
+    padding: 32px 24px;
+    transform: rotate(5deg);
+    z-index: 3;
+    box-shadow: 6px 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.titulo-hoja-pixel { font-family: var(--fuente-pixel); font-size: 13px; text-align: center; margin-bottom: 8px; }
+.estrellas-calificacion { color: var(--color-rojo-error); text-align: center; font-size: 1.1rem; letter-spacing: 3px; margin-bottom: 18px; }
+.cuerpo-texto-hoja { font-size: 0.85rem; line-height: 1.5; }
+
+.libreta-resenas-comunidad {
+    position: relative;
+    left: 80px;
+    width: 310px;
+    background-color: var(--color-morado-titulo);
+    border: 2px solid #000000;
+    transform: rotate(6deg);
+    z-index: 3;
+    box-shadow: 6px 8px 16px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+}
+
+.cabecera-libreta-pixel { font-family: var(--fuente-pixel); font-size: 10px; color: #ffffff; margin-bottom: 10px; }
+.cuerpo-libreta-scroll { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; }
+
+.fila-resena-comunidad {
+    background-color: #000000;
+    border: 1px solid #ffffff;
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.texto-resena-comunidad { font-size: 0.75rem; color: #ffffff; line-height: 1.3; }
+
+.acciones-libreta-resenas {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.columna-comentarios-morada {
+    background-color: var(--color-morado-titulo);
+    border-top: 2px solid var(--color-borde-blanco);
+    border-left: 2px solid var(--color-borde-blanco);
+    border-right: 2px solid var(--color-borde-negro);
+    border-bottom: 2px solid var(--color-borde-negro);
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.encabezado-comentarios-pixel { font-family: var(--fuente-pixel); font-size: 10px; color: #ffffff; }
+.lista-comentarios-desplazable { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; }
+
+.tarjeta-comentario-negra {
+    background-color: #000000;
+    border: 1.5px solid var(--color-borde-negro);
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.avatar-amigo-gradiente {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #ff82c3, #7241ff);
+    border: 1px solid #ffffff;
+    flex-shrink: 0;
+}
+
+.info-comentario-negro { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.texto-comentario-negro { font-size: 0.7rem; color: #ffffff; line-height: 1.25; }
+
+.acciones-columna-comentarios {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* --- Ver Más Comentarios (Hilo Completo) --- */
+.contenedor-hilo-completo { display: flex; flex-direction: column; gap: 12px; height: 100%; }
+
+.barra-resumen-resena {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 18px;
+}
+
+.miniatura-portada-hilo { width: 60px; height: 90px; border: 2px solid #000000; flex-shrink: 0; }
+.imagen-portada-hilo { width: 100%; height: 100%; object-fit: cover; }
+.titulo-hilo-pixel { font-family: var(--fuente-mono); font-size: 0.95rem; }
+
+.caja-morada-hilo {
+    background-color: var(--color-morado-titulo);
+    border-top: 2px solid var(--color-borde-blanco);
+    border-left: 2px solid var(--color-borde-blanco);
+    border-right: 2px solid var(--color-borde-negro);
+    border-bottom: 2px solid var(--color-borde-negro);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+}
+
+.etiqueta-morada-pixel { font-family: var(--fuente-pixel); font-size: 10px; color: #ffffff; }
+.lista-hilos-conversacion { display: flex; flex-direction: column; gap: 14px; overflow-y: auto; max-height: 380px; }
+.grupo-comentario-respuesta { display: flex; flex-direction: column; gap: 4px; }
+
+.bloque-comentario-negro {
+    background-color: #000000;
+    border: 1.5px solid var(--color-borde-negro);
+    padding: 10px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.avatar-usuario-comentario {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #ff82c3, #7241ff);
+    border: 1px solid #ffffff;
+    flex-shrink: 0;
+}
+
+.contenido-comentario-negro { flex: 1; }
+.texto-hilo-comentario { color: #ffffff; font-size: 0.8rem; line-height: 1.4; }
+.corazon-pixel-rojo { color: var(--color-rojo-error); font-size: 1rem; align-self: flex-end; user-select: none; }
+
+.caja-responder-hundida {
+    background-color: var(--color-gris-ventana);
+    border-top: 2px solid var(--color-borde-oscuro);
+    border-left: 2px solid var(--color-borde-oscuro);
+    border-right: 2px solid var(--color-borde-blanco);
+    border-bottom: 2px solid var(--color-borde-blanco);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.campo-texto-responder {
+    width: 100%;
+    height: 45px;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: var(--fuente-mono);
+    font-size: 0.8rem;
+}
+
+.pie-volver-resenas, .pie-volver-biblioteca { margin-top: auto; display: flex; justify-content: flex-end; }
+
+.boton-retro-blanco {
+    background-color: #ffffff;
+    border: 1.5px solid #000000;
+    color: #000000;
+    font-family: var(--fuente-mono);
+    font-size: 0.85rem;
+    padding: 4px 12px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px 0px #000000;
+}
+
+/* --- Estados de Edición Inline --- */
+.campo-editar-comentario,
+.campo-editar-resena {
+    width: 100%;
+    border-top: 2px solid var(--color-borde-negro);
+    border-left: 2px solid var(--color-borde-negro);
+    border-right: 1.5px solid var(--color-borde-blanco);
+    border-bottom: 1.5px solid var(--color-borde-blanco);
+    padding: 6px;
+    font-family: var(--fuente-mono);
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+    outline: none;
+    resize: vertical;
+}
+
+/* --- Barra de Estado Inferior --- */
+.barra-estado-inferior {
+    height: 22px;
+    background-color: var(--color-gris-ventana);
+    border-top: 2px solid var(--color-borde-oscuro);
+    border-left: 2px solid var(--color-borde-oscuro);
+    border-right: 2px solid var(--color-borde-blanco);
+    border-bottom: 2px solid var(--color-borde-blanco);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+/* --- Asistente Genio Flotante --- */
+.asistente-genio-flotante {
+    position: fixed;
+    right: 30px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.globo-dialogo-retro {
+    background-color: #ffffff;
+    border: 2px solid var(--color-borde-negro);
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    max-width: 200px;
+    position: relative;
+    box-shadow: 2px 2px 0px 0px rgba(0,0,0,0.4);
+    margin-bottom: 6px;
+    pointer-events: auto;
+}
+
+.globo-dialogo-retro::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    right: 25px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #ffffff;
+}
+
+.globo-dialogo-retro::before {
+    content: "";
+    position: absolute;
+    bottom: -11px;
+    right: 24px;
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 9px solid var(--color-borde-negro);
+}
+
+.grafico-genio { width: 60px; height: 80px; display: flex; align-items: center; justify-content: center; }
+.imagen-genio-png { width: 100%; height: 100%; object-fit: contain; }
+.genio-pixel-decorativo { font-size: 3rem; display: none; }
+.imagen-genio-png.genio-fallback { display: none; }
+.imagen-genio-png.genio-fallback + .genio-pixel-decorativo { display: block; }
+
+/* --- Modales de Confirmación y Error --- */
+.capa-fondo-modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+.capa-fondo-modal.modal-activo { display: flex; }
+
+.estructura-ventana-modal {
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+}
+
+.franja-degrade-modal {
+    height: 20px;
+    background: var(--fondo-barra-degrade);
+    border: 1.5px solid var(--color-borde-negro);
+}
+
+.cuerpo-modal-lila {
+    background-color: var(--color-panel-lila);
+    border-left: 2px solid var(--color-borde-oscuro);
+    border-right: 2px solid var(--color-borde-oscuro);
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.etiqueta-modal-mono { font-size: 1.05rem; }
+.campo-modal-ancho { max-width: 380px; text-align: center; }
+.botones-fila-modal { display: flex; gap: 16px; }
+
+.mensaje-error-modal {
+    font-size: 0.8rem;
+    color: var(--color-rojo-error);
+    display: none;
+    margin-top: -12px;
+}
+
+.mensaje-error-modal.activo { display: block; }
+
+/* Responsive */
+@media (max-width: 900px) {
+    .contenedor-principal-foro,
+    .cuerpo-acceso,
+    .cuadricula-dos-columnas,
+    .disposicion-biblioteca,
+    .disposicion-dos-paneles,
+    .disposicion-leer-tarde,
+    .disposicion-explorar-contenido,
+    .contenedor-detalle-resena {
+        grid-template-columns: 1fr;
+    }
+
+    .grilla-libros-pendientes,
+    .grilla-libros-explorar {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .asistente-genio-flotante { display: none; }
 }

@@ -1,38 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio Thrilloteca</title>
+    <title>Thrilloteca - Iniciar Sesión</title>
+
+    <!-- Google Fonts: Press Start 2P y DM Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Press+Start+2P&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="estilos.css">
 </head>
-<body>
-    
-<div>
- <p>THRILLOTECA</p>
-    <div class="caja" id="info">
-        <h1>THRILLOTECA</h1>
-        <p>conecta con tus amigos sobre sus libros favoritos de terror
-comparte tus reseñas personales y ve la de tus amigos 
-agrega libros a tu biblioteca</p>
-     </div>
- <div class="caja" id="usuario">
-    <p>accede a tu cuenta</p>
-    <label for="">e-mail</label>
-    <input type="text">
+<body class="fondo-escritorio">
 
-    <label for="">contraseña</label>
-    <input type="text">
- </div>
+    <!-- Ventana Retro SO Windows 2000 -->
+    <div class="ventana-retro ventana-acceso">
+        
+        <!-- Barra superior degradada -->
+        <header class="barra-titulo">
+            <span class="texto-barra-titulo">THRILLOTECA</span>
+            <div class="botones-sistema">
+                <button type="button" class="boton-sistema" aria-label="Minimizar">_</button>
+                <button type="button" class="boton-sistema" aria-label="Maximizar">□</button>
+                <button type="button" class="boton-sistema" aria-label="Cerrar">x</button>
+            </div>
+        </header>
 
- <div class="caja" id="ingresar">
-    <label for="">¿no tienes cuenta?</label>
-    <button>crear cuenta</button>  
-<!-- capaz es un a porque te tiene que llevar a otra pagina pero no se -->
- </div>
-</div>
+        <!-- Cuerpo de acceso de dos columnas -->
+        <main class="cuerpo-ventana cuerpo-acceso">
+            
+            <!-- Columna Izquierda: Logo y lista de beneficios -->
+            <section class="panel-lateral-izquierdo">
+                <div class="envoltorio-logo">
+                    <h1 class="logo-thrilloteca">THRILLOTECA</h1>
+                </div>
 
+                <ul class="lista-detalles">
+                    <li class="item-detalle">
+                        <span class="icono-pixel icono-marcador" aria-hidden="true"></span>
+                        <span class="texto-detalle">conecta con tus amigos</span>
+                    </li>
+                    <li class="item-detalle">
+                        <span class="icono-pixel icono-corazon" aria-hidden="true"></span>
+                        <span class="texto-detalle">comparte tus reseñas y ve las de tus amigos</span>
+                    </li>
+                    <li class="item-detalle">
+                        <span class="icono-pixel icono-cuadro" aria-hidden="true"></span>
+                        <span class="texto-detalle">agrega libros a tu biblioteca</span>
+                    </li>
+                </ul>
+            </section>
 
-<script src="script.js"></script>
+            <!-- Columna Derecha: Formulario y Alternancia -->
+            <div class="columna-derecha">
+                
+                <!-- Panel superior: Formulario interactivo -->
+                <section class="panel-formulario">
+                    <h2 class="titulo-formulario" id="titulo-formulario">ACCEDE A TU CUENTA</h2>
+
+                    <form class="formulario-interactivo" id="formulario-autenticacion" novalidate>
+                        <div class="fila-campo">
+                            <label for="entrada-correo" class="etiqueta-formulario">e-mail</label>
+                            <input 
+                                type="email" 
+                                id="entrada-correo" 
+                                name="correo" 
+                                class="campo-retro" 
+                                placeholder="escribe tu mail"
+                                autocomplete="email"
+                                required
+                            >
+                            <span class="texto-error" id="error-correo"></span>
+                        </div>
+
+                        <div class="fila-campo">
+                            <label for="entrada-clave" class="etiqueta-formulario">contraseña</label>
+                            <input 
+                                type="password" 
+                                id="entrada-clave" 
+                                name="clave" 
+                                class="campo-retro" 
+                                placeholder="escribe tu contraseña"
+                                autocomplete="current-password"
+                                required
+                            >
+                            <span class="texto-error" id="error-clave"></span>
+                        </div>
+
+                        <span class="texto-error texto-error-global" id="error-global"></span>
+
+                        <div class="contenedor-boton-accion">
+                            <button type="submit" class="boton-retro-3d" id="boton-accion-principal">
+                                ingresar
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Panel inferior: Alternar vista -->
+                <section class="panel-alternar">
+                    <p class="pregunta-alternar" id="texto-pregunta">¿no tienes cuenta?</p>
+                    <div class="contenedor-boton-accion">
+                        <button type="button" class="boton-retro-3d" id="boton-alternar-modo">
+                            crear cuenta
+                        </button>
+                    </div>
+                </section>
+
+            </div>
+
+        </main>
+
+        <!-- Barra inferior hundida -->
+        <footer class="barra-estado-inferior" aria-hidden="true"></footer>
+
+    </div>
+
+    <script src="script-autenticacion.js"></script>
 </body>
 </html>
