@@ -1,4 +1,10 @@
-//  Tres funciones, y las tres ya las escribieron antes.
-//
-//  Compará buscarPorEmail con el buscarPorNombre de la clase 10:
-//  es la MISMA función, con otro campo adentro de las llaves.
+import { Usuario } from "../models/usuario.js"
+
+export async function buscarPorEmail(email) {
+  return await Usuario.findOne({ email: email })
+}
+
+export async function guardar(datos) {
+  const nuevo = new Usuario(datos)
+  return await nuevo.save()
+}
