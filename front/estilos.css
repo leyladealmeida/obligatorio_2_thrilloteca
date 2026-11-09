@@ -699,6 +699,10 @@
     margin-top: 10px;
 }
 
+.mensaje-libros-guardados {
+    grid-column: 1 / -1;
+}
+
 .casilla-libro-guardado,
 .casilla-libro-explorar {
     display: flex;
@@ -712,6 +716,36 @@
     aspect-ratio: 1 / 1.5;
     background-color: #ffffff;
     border: 2px solid #5a3ea3;
+    /* Para mostrar título y autor de los libros que vienen de la base */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+    padding: 6px;
+    overflow: hidden;
+}
+
+.titulo-portada-item {
+    font-family: var(--fuente-pixel);
+    font-size: 7px;
+    line-height: 1.4;
+}
+
+.autor-portada-item {
+    font-size: 0.65rem;
+    color: #555555;
+}
+
+.datos-libro-guardado {
+    width: 100%;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+.datos-libro-guardado p {
+    margin: 0;
 }
 
 .portada-clickeable {
