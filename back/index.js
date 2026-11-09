@@ -1,8 +1,3 @@
-import { pedirToken } from "./middlewares/autorizacion.middleware.js"
-
-// Aplica el middleware pedirToken a todas las rutas de /api/items
-app.use("/api/items", pedirToken, itemsRouter)
-
 import itemsRouter from "./routes/items.routes.js"
 
 import dotenv from "dotenv"
@@ -12,6 +7,8 @@ import express from "express"
 import cors from "cors"
 import { conectarBase } from "./config/db.js"
 import usuariosRouter from "./routes/usuarios.routes.js"
+import { pedirToken } from "./middlewares/autorizacion.middleware.js"
+
 
 await conectarBase()
 
@@ -34,6 +31,9 @@ app.get("/", (req, res) => {
 app.use("/api", usuariosRouter)
 
 app.use("/api/items", itemsRouter)
+
+// CON candado: exigi el token para operar con los libros
+app.use("/api/items", pedirToken, itemsRouter)
 
 // 404 general
 app.use((req, res) => {
