@@ -1,9 +1,10 @@
-//  Mirá bien este archivo: NO TIENE NADA NUEVO.
-//  Es el mismo molde de la clase 10, con otros campos.
-//
-//  Esa es la idea de arrancar por acá: el usuario no es una criatura
-//  especial del sistema, es UNA ENTIDAD MÁS. Mismo Schema, mismo
-//  repository, mismo service, mismo controller.
-//
-//  Lo único que lo hace distinto viene DESPUÉS, en el service:
-//  la contraseña no se guarda como llega.
+import mongoose from "mongoose"
+
+const usuarioSchema = new mongoose.Schema({
+  email: { type: String, required: true, trim: true, lowercase: true },
+  // Acá NO va la contraseña: va el HASH
+  password: { type: String, required: true },
+  fechaDeCreacion: { type: Date, default: Date.now }
+})
+
+export const Usuario = mongoose.model("Usuario", usuarioSchema)
