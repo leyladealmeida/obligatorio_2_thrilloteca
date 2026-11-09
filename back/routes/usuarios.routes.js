@@ -1,11 +1,9 @@
-//  Tres líneas, pero MIRÁ LA DIFERENCIA ENTRE ELLAS:
-//
-//      registro y login  ->  LIBRES. Tienen que serlo: si para
-//                            registrarte hiciera falta un token, nunca
-//                            podrías conseguir el primero.
-//
-//      /yo               ->  PROTEGIDA. Lleva pedirToken ADELANTE del
-//                            controller.
-//
-//  Esa forma —ruta, middleware, controller— es la de la clase 7:
-//      app.METODO(ruta, [middleware(s)], controller)
+import express from "express"
+import { registro, login } from "../controllers/usuarios.controller.js"
+
+const router = express.Router()
+
+router.post("/register", registro) // POST /api/register
+router.post("/login", login)       // POST /api/login
+
+export default router
