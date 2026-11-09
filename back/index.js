@@ -1,3 +1,8 @@
+import { pedirToken } from "./middlewares/autorizacion.middleware.js"
+
+// Aplica el middleware pedirToken a todas las rutas de /api/items
+app.use("/api/items", pedirToken, itemsRouter)
+
 import itemsRouter from "./routes/items.routes.js"
 
 import dotenv from "dotenv"
