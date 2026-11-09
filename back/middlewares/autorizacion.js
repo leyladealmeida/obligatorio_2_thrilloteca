@@ -13,7 +13,9 @@ import jwt from "jsonwebtoken"
 export function pedirToken(req, res, next) {
   // El token viene en los headers con el formato "Authorization: Bearer <TOKEN>"
   const authHeader = req.headers.authorization
-  const token = authHeader && authHeader.split(" ")[1]
+  const token = authHeader && authHeader.split(" ")[1] 
+  //el 1 basicamente agarra la segunda parte del texto de token, 
+ //que es la parte limpia, y usa esa, descartanto la palabra Bearer
 
   if (!token) {
     return res.status(401).json({ mensaje: "acceso denegado: falta el token de autenticación" })
