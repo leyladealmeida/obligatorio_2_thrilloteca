@@ -9,7 +9,13 @@ const itemSchema = new mongoose.Schema({
   genero: { type: String, enum: GENEROS, default: "suspenso" },
   estado: { type: String, enum: ESTADOS, default: "leer-mas-tarde" },
   portada: {type: String},
-  fechaDeCreacion: { type: Date, default: Date.now }
+  fechaDeCreacion: { type: Date, default: Date.now },
+  ///ESTO ES NUEVO - PARA QUE SE GUARDE EL LIBRO AGREGADA AL USUARIO QUE LO AGREGO
+  usuario: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Usuario", 
+    required: true
+}
 })
 
 export const Item = mongoose.model("Item", itemSchema)
