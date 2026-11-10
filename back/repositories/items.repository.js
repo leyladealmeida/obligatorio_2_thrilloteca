@@ -1,20 +1,31 @@
-// EL DEPOSITO: SOLAMENTE GUARDA Y BUSCA
-
 import mongoose from "mongoose"
 import { Item } from "../models/item.js"
 
-export async function buscarTodos() {
-  return await Item.find()
+// Busca únicamente los libros pertenecientes al ID del usuario
+export async function buscarTodosPorUsuario(idUsuario) {
+  if (!mongoose.isValidObjectId(idUsuario)) {
+    return []
+  }
+  return await Item.find({ usuario: idUsuario })
 }
 
+// Busca un libro por ID para que el servicio pueda verificar quién es el dueño
+export async function buscarPorId(id) {
+  if (!mongoose.isValidObjectId(id)) {
+    return null
+  }
+  return await Item.findById(id)
+}
+
+// function guardar 
 export async function guardar(datos) {
   const nuevo = new Item(datos)
   return await nuevo.save()
 }
 
-// Devuelve el item borrado, o null si no existe
+// function eliminar con la validación de la Clase 9
 export async function eliminar(id) {
-  if (!mongoose.isValidObjectId(id)) { // isValidObjectId - lo dio en la clase 9, el id de Mongo
+  if (!mongoose.isValidObjectId(id)) {
     return null
   }
   return await Item.findByIdAndDelete(id)
