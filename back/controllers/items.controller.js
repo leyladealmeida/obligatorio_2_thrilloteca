@@ -5,7 +5,7 @@ import { listarItems, crearItem, borrarItem } from "../services/items.service.js
 // GET /api/items
 export async function listar(req, res) {
   try {
-    const lista = await listarItems()
+    const lista = await listarItems(req.usuario.id)
     res.json(lista)
   } catch (error) {
     res.status(error.status || 500).json({ mensaje: error.message })
@@ -15,7 +15,7 @@ export async function listar(req, res) {
 // POST /api/items
 export async function crear(req, res) {
   try {
-    const nuevo = await crearItem(req.body)
+    const nuevo = await crearItem(req.body, req.usuario.id)
     res.status(201).json(nuevo)
   } catch (error) {
     res.status(error.status || 500).json({ mensaje: error.message })
@@ -25,8 +25,8 @@ export async function crear(req, res) {
 // DELETE /api/items/:id
 export async function borrar(req, res) {
   try {
-    const id = req.params.id // este es el id que viene en la URL (clase 6 y 7)
-    await borrarItem(id)
+    const id = req.params.id
+    await borrarItem(id, req.usuario.id)
     res.json({ mensaje: "libro " + id + " borrado" })
   } catch (error) {
     res.status(error.status || 500).json({ mensaje: error.message })
