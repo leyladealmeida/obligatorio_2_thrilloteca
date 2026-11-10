@@ -1,6 +1,6 @@
 // ACA VAN LAS REGLAS (SERIA EL COCINERO EN EL EJEMPLO DEL PROFE)
 
-import { buscarTodos, guardar, eliminar } from "../repositories/items.repository.js"
+import { buscarTodosPorUsuario, buscarPorId, guardar, eliminar } from "../repositories/items.repository.js"
 
 const AUTORES_PERMITIDOS = [
   "Stephen King",
@@ -68,19 +68,20 @@ function validar(datos) {
     estado: datos.estado || "leer-mas-tarde"
   }
 }
-
-export async function listarItems() {
-  return await buscarTodos()
+//1. solo los libros asociados a usuarios por id
+export async function listarItems(idUsuario) {
+  return await buscarTodosPorUsuario(idUsuario)
 }
 
-export async function crearItem(datos) {
+// 2. CREAR: Asigna el ID del usuario al libro y busca duplicados solo dentro de su lista
+export async function crearItem(datos, idUsuario) {
   let datosFinales = datos
 
   if (datos.isbn) {
     const infoGoogle = await obtenerInfoDeGoogle(datos.isbn)
 
-    // Validar duplicados por título
-    const itemsExistentes = await buscarTodos()
+    // Validar duplicados únicamente entre los libros del usuario logueado
+    const itemsExistentes = await buscarTodosPorUsuario(idUsuario)
     const duplicado = itemsExistentes.find(item => 
       item.titulo.toLowerCase().trim() === infoGoogle.titulo.toLowerCase().trim()
     )
@@ -98,13 +99,23 @@ export async function crearItem(datos) {
   }
 
   const limpios = validar(datosFinales)
+  limpios.usuario = idUsuario // Se vincula la propiedad usuario
+
   return await guardar(limpios)
 }
 
-export async function borrarItem(id) {
-  const borrado = await eliminar(id)
-  if (!borrado) {
+// 3. BORRAR: Revisa si el libro existe y si pertenece al idUsuario antes de eliminar (devuelve 403 si es ajeno)
+export async function borrarItem(id, idUsuario) {
+  const item = await buscarPorId(id)
+
+  if (!item) {
     throw errorCon(404, "no existe un libro con id " + id)
   }
-  return borrado
+
+  // Verificación de pertenencia
+  if (item.usuario.toString() !== idUsuario) {
+    throw errorCon(403, "no tenés permiso para eliminar este libro")
+  }
+
+  return await eliminar(id)
 }
