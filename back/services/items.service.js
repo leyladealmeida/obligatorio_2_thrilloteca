@@ -1,6 +1,13 @@
 // ACA VAN LAS REGLAS (SERIA EL COCINERO EN EL EJEMPLO DEL PROFE)
 
-import { buscarTodosPorUsuario, buscarPorId, guardar, eliminar } from "../repositories/items.repository.js"
+import {
+  buscarTodosPorUsuario,
+  buscarPorId,
+  guardar,
+  eliminar,
+  actualizar
+} from "../repositories/items.repository.js"
+import { ESTADOS } from "../models/item.js"
 
 const AUTORES_PERMITIDOS = [
   "Stephen King",
@@ -68,12 +75,13 @@ function validar(datos) {
     estado: datos.estado || "leer-mas-tarde"
   }
 }
-//1. solo los libros asociados a usuarios por id
+
+// 1. LISTAR: solo los libros asociados al usuario por id
 export async function listarItems(idUsuario) {
   return await buscarTodosPorUsuario(idUsuario)
 }
 
-// 2. CREAR: Asigna el ID del usuario al libro y busca duplicados solo dentro de su lista
+// 2. CREAR: asigna el ID del usuario al libro y busca duplicados solo dentro de su lista
 export async function crearItem(datos, idUsuario) {
   let datosFinales = datos
 
@@ -104,7 +112,7 @@ export async function crearItem(datos, idUsuario) {
   return await guardar(limpios)
 }
 
-// 3. BORRAR: Revisa si el libro existe y si pertenece al idUsuario antes de eliminar (devuelve 403 si es ajeno)
+// 3. BORRAR: revisa si el libro existe y si pertenece al idUsuario antes de eliminar (403 si es ajeno)
 export async function borrarItem(id, idUsuario) {
   const item = await buscarPorId(id)
 
@@ -118,4 +126,25 @@ export async function borrarItem(id, idUsuario) {
   }
 
   return await eliminar(id)
+}
+
+// 4. CAMBIAR ESTADO: valida el estado, y revisa que el libro exista y sea del usuario
+export async function cambiarEstado(id, datos, idUsuario) {
+  const estado = datos.estado ? String(datos.estado).trim() : ""
+
+  // Regla que se resuelve MIRANDO los datos
+  if (!ESTADOS.includes(estado)) {
+    throw errorCon(400, "el estado tiene que ser uno de estos: " + ESTADOS.join(", "))
+  }
+
+  // Regla que hay que PREGUNTARLE a la base: ¿existe y es suyo?
+  const item = await buscarPorId(id)
+  if (!item) {
+    throw errorCon(404, "no existe un libro con id " + id)
+  }
+  if (item.usuario.toString() !== idUsuario) {
+    throw errorCon(403, "no tenés permiso para modificar este libro")
+  }
+
+  return await actualizar(id, { estado: estado })
 }

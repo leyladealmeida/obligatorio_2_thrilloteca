@@ -1,3 +1,47 @@
+// Cuando se publique en Render, cambiar esta línea (igual que en script-autenticacion.js)
+const BASE_URL = "http://localhost:3000";
+
+// El token que dejó el login. Sin token no hay nada que hacer acá
+const token = localStorage.getItem("token");
+if (!token) {
+  window.location.href = "index.html";
+}
+
+function cerrarSesionLocal() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("usuario");
+  window.location.href = "index.html";
+}
+
+// Todos los pedidos al back pasan por acá: agrega el token y atiende el 401
+async function pedirAlBack(ruta, opciones) {
+  const config = opciones || {};
+  const headers = { "Authorization": "Bearer " + token };
+
+  if (config.body) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  let respuesta;
+  try {
+    respuesta = await fetch(BASE_URL + ruta, {
+      method: config.method || "GET",
+      headers: headers,
+      body: config.body
+    });
+  } catch (error) {
+    throw new Error("no se pudo conectar con el servidor");
+  }
+
+  // 401 = token vencido o inválido: volvemos al login
+  if (respuesta.status === 401) {
+    cerrarSesionLocal();
+    throw new Error("tu sesión venció, volvé a ingresar");
+  }
+
+  return respuesta;
+}
+
 // Esperar a que todo el documento HTML esté cargado
 document.addEventListener("DOMContentLoaded", function () {
   // ==============================================================
@@ -211,12 +255,9 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-     try {
-        const respuesta = await fetch(BASE_URL + "/api/items", {
+      try {
+        const respuesta = await pedirAlBack("/api/items", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
           body: JSON.stringify({
             isbn: valorIngresado,
             estado: "leer-mas-tarde"
@@ -235,7 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
         textoErrorIsbn.classList.remove("activo");
         modalAgregar.classList.remove("modal-activo");
         campoIsbn.value = "";
-        
+
         await cargarLeerMasTarde();
         mostrarVista("seccion-leer-tarde", titulosPorVista["seccion-leer-tarde"]);
 
@@ -379,19 +420,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const botonCerrarSesion = document.getElementById("boton-cerrar-sesion");
 
   if (botonCerrarSesion) {
-    botonCerrarSesion.addEventListener("click", function () {
-      window.location.href = "index.html";
-    });
+    botonCerrarSesion.addEventListener("click", cerrarSesionLocal);
   }
 
   // ==============================================================
   // 9. CONEXIÓN CON EL BACK (AJAX)
   // ==============================================================
 
-  const BASE_URL = "http://localhost:3000";
-
   async function obtenerItems() {
-    const respuesta = await fetch(BASE_URL + "/api/items");
+    const respuesta = await pedirAlBack("/api/items");
     const datos = await respuesta.json();
 
     if (!respuesta.ok) {

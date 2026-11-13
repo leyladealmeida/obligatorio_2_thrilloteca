@@ -1,6 +1,6 @@
 // ESTE SERIA EL MOZO EN EL EJEMPLO DEL PROFE
 
-import { listarItems, crearItem, borrarItem } from "../services/items.service.js"
+import { listarItems, crearItem, borrarItem, cambiarEstado } from "../services/items.service.js"
 
 // GET /api/items
 export async function listar(req, res) {
@@ -28,6 +28,17 @@ export async function borrar(req, res) {
     const id = req.params.id
     await borrarItem(id, req.usuario.id)
     res.json({ mensaje: "libro " + id + " borrado" })
+  } catch (error) {
+    res.status(error.status || 500).json({ mensaje: error.message })
+  }
+}
+
+// PUT /api/items/:id
+export async function editar(req, res) {
+  try {
+    const id = req.params.id
+    const actualizado = await cambiarEstado(id, req.body, req.usuario.id)
+    res.json(actualizado)
   } catch (error) {
     res.status(error.status || 500).json({ mensaje: error.message })
   }

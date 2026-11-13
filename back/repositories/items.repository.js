@@ -30,3 +30,13 @@ export async function eliminar(id) {
   }
   return await Item.findByIdAndDelete(id)
 }
+
+// Devuelve el item YA modificado, o null si no existe
+export async function actualizar(id, datos) {
+  if (!mongoose.isValidObjectId(id)) {
+    return null
+  }
+  // new: true -> devuelve el documento después del cambio (clase 9)
+  // runValidators: true -> en los updates Mongoose NO revisa el enum si no se pide
+  return await Item.findByIdAndUpdate(id, datos, { new: true, runValidators: true })
+}
