@@ -292,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==============================================================
 
   let tarjetaQueSeVaAEliminar = null;
-
+  let idLibroAEliminar = null;
   const modalEliminarLibro = document.getElementById("modal-eliminar-libro");
   const modalEliminarResena = document.getElementById("modal-eliminar-resena");
   const modalEliminarComentario = document.getElementById(
@@ -321,11 +321,59 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  configurarModalEliminar(
+  /* configurarModalEliminar(
     modalEliminarLibro,
     "boton-confirmar-eliminar-libro",
     "boton-cancelar-eliminar-libro"
-  );
+  ); 
+  !!!!esto lo cambio por esto nuevo!!!!!*/
+  const botonConfirmarEliminarLibro = document.getElementById("boton-confirmar-eliminar-libro");
+  const botonCancelarEliminarLibro = document.getElementById("boton-cancelar-eliminar-libro");
+
+  if (botonConfirmarEliminarLibro) {
+    botonConfirmarEliminarLibro.addEventListener("click", async function () {
+      if (idLibroAEliminar !== null) {
+        try {
+          const respuesta = await pedirAlBack("/api/items/" + idLibroAEliminar, {
+            method: "DELETE"
+          });
+          const datos = await respuesta.json();
+
+          if (!respuesta.ok) {
+            throw new Error(datos.mensaje || "no se pudo eliminar el libro");
+          }
+        } catch (error) {
+          alert("Error al eliminar: " + error.message);
+          idLibroAEliminar = null;
+          tarjetaQueSeVaAEliminar = null;
+          modalEliminarLibro.classList.remove("modal-activo");
+          return;
+        }
+      }
+
+      if (tarjetaQueSeVaAEliminar !== null) {
+        tarjetaQueSeVaAEliminar.remove();
+        tarjetaQueSeVaAEliminar = null;
+      }
+
+      idLibroAEliminar = null;
+      modalEliminarLibro.classList.remove("modal-activo");
+
+      // Si borró el último libro de Leer más tarde, mostrar el mensaje de lista vacía
+      if (contenedorLibrosGuardados && contenedorLibrosGuardados.children.length === 0) {
+        mostrarMensajeLeerMasTarde("todavía no guardaste ningún libro");
+      }
+    });
+  }
+
+  if (botonCancelarEliminarLibro) {
+    botonCancelarEliminarLibro.addEventListener("click", function () {
+      tarjetaQueSeVaAEliminar = null;
+      idLibroAEliminar = null;
+      modalEliminarLibro.classList.remove("modal-activo");
+    });
+  }
+
   configurarModalEliminar(
     modalEliminarResena,
     "boton-confirmar-eliminar-resena",
@@ -494,8 +542,10 @@ document.addEventListener("DOMContentLoaded", function () {
       botonEliminar.textContent = "eliminar";
       botonEliminar.addEventListener("click", function() {
         tarjetaQueSeVaAEliminar = casilla;
+        idLibroAEliminar = item._id;
         modalEliminarLibro.classList.add("modal-activo");
       });
+        
 
       portada.addEventListener("click", function() {
         abrirDetalleLibro(item);
