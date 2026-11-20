@@ -133,16 +133,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
       this.classList.add("filtro-activo");
 
-      const generoElegido = this.dataset.genero;
-      const librosExplorar = document.querySelectorAll(".casilla-libro-explorar");
-
-      for (let k = 0; k < librosExplorar.length; k++) {
-        if (librosExplorar[k].dataset.genero === generoElegido) {
-          librosExplorar[k].style.display = "";
-        } else {
-          librosExplorar[k].style.display = "none";
-        }
+      // Los libros vienen de la base: volvemos a pintar con el género elegido
+      generoActual = this.dataset.genero;
+      textoBusqueda = "";
+      if (campoBusqueda) {
+        campoBusqueda.value = "";
       }
+      pintarExplorar();
     });
   }
 
@@ -150,15 +147,42 @@ document.addEventListener("DOMContentLoaded", function () {
   // 4. DETALLE DEL LIBRO, DETALLE DE RESEÑA, HILO Y VOLVER
   // ==============================================================
 
-  function abrirDetalleLibro(datosLibro) {
-    if (datosLibro && datosLibro.portada) {
-      const imgDetalle = document.querySelector("#seccion-detalle-libro .imagen-portada-rotada");
+  function abrirDetalleLibro(item) {
+    libroAbierto = item || null;
+
+    const imgDetalle = document.querySelector("#seccion-detalle-libro .imagen-portada-rotada");
+    const barra = document.getElementById("barra-info-libro");
+    const mensajeDetalle = document.getElementById("detalle-mensaje");
+    mensajeDetalle.textContent = "";
+
+    if (item) {
+      // Si el libro no tiene portada, ocultamos la imagen (así no queda la de otro libro)
       if (imgDetalle) {
-        imgDetalle.src = datosLibro.portada;
+        imgDetalle.onerror = function () { this.style.visibility = "hidden"; };
+        if (item.portada) {
+          imgDetalle.style.visibility = "visible";
+          imgDetalle.src = item.portada;
+        } else {
+          imgDetalle.style.visibility = "hidden";
+        }
       }
+
+      document.getElementById("detalle-titulo").textContent = item.titulo;
+      document.getElementById("detalle-autor").textContent = "autor: " + item.autor;
+      document.getElementById("detalle-genero").textContent = "género: " + (item.genero || "suspenso");
+      document.getElementById("detalle-descripcion").textContent = item.descripcion || "este libro no tiene descripción guardada";
+      document.getElementById("detalle-estado").value = item.estado;
+      barra.style.display = "flex";
+    } else {
+      // Se llegó desde una tarjeta de ejemplo (sin datos de la base)
+      if (imgDetalle) {
+        imgDetalle.style.visibility = "visible";
+      }
+      barra.style.display = "none";
     }
+
     mostrarVista("seccion-detalle-libro", "detalle del libro");
-    cambiarConsejo("Puedes agregarlo a tu lista de leer más tarde");
+    cambiarConsejo("Puedes cambiar el estado de tu libro desde acá");
   }
 
   const todasLasPortadas = document.querySelectorAll(".portada-clickeable");
@@ -277,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
         modalAgregar.classList.remove("modal-activo");
         campoIsbn.value = "";
 
-        await cargarLeerMasTarde();
+        await recargarTodo();
         mostrarVista("seccion-leer-tarde", titulosPorVista["seccion-leer-tarde"]);
 
       } catch (error) {
@@ -351,18 +375,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      if (tarjetaQueSeVaAEliminar !== null) {
-        tarjetaQueSeVaAEliminar.remove();
-        tarjetaQueSeVaAEliminar = null;
-      }
-
+      tarjetaQueSeVaAEliminar = null;
       idLibroAEliminar = null;
       modalEliminarLibro.classList.remove("modal-activo");
 
-      // Si borró el último libro de Leer más tarde, mostrar el mensaje de lista vacía
-      if (contenedorLibrosGuardados && contenedorLibrosGuardados.children.length === 0) {
-        mostrarMensajeLeerMasTarde("todavía no guardaste ningún libro");
-      }
+      // Volvemos a pedir la lista: así se actualizan todas las pantallas a la vez
+      await recargarTodo();
     });
   }
 
@@ -474,6 +492,28 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==============================================================
   // 9. CONEXIÓN CON EL BACK (AJAX)
   // ==============================================================
+  // Una sola lista (todosLosItems) alimenta todas las pantallas:
+  // se pide una vez al back y cada función "pintar" muestra su parte.
+
+  let todosLosItems = [];
+  let libroAbierto = null;
+  let generoActual = "suspenso";
+  let textoBusqueda = "";
+
+  const contenedorLibrosGuardados = document.getElementById("contenedor-libros-guardados");
+  const contenedorProgreso = document.getElementById("contenedor-libros-progreso");
+  const estanteriaLeidos = document.getElementById("estanteria-leidos");
+  const textoEstanteFecha = document.getElementById("texto-estante-fecha");
+  const contenedorExplorar = document.getElementById("contenedor-libros-explorar");
+  const formularioBusqueda = document.getElementById("formulario-busqueda");
+  const campoBusqueda = document.getElementById("campo-busqueda");
+  const nombreUsuario = document.getElementById("nombre-usuario");
+  const biografiaUsuario = document.getElementById("biografia-usuario");
+  const selectEstado = document.getElementById("detalle-estado");
+  const botonGuardarEstado = document.getElementById("boton-guardar-estado");
+  const mensajeDetalle = document.getElementById("detalle-mensaje");
+
+  // ----- pedidos al back -----
 
   async function obtenerItems() {
     const respuesta = await pedirAlBack("/api/items");
@@ -485,93 +525,318 @@ document.addEventListener("DOMContentLoaded", function () {
     return datos;
   }
 
-  const contenedorLibrosGuardados = document.getElementById(
-    "contenedor-libros-guardados"
-  );
+  // PUT /api/items/:id  (solo cambia el estado: leyendo, leido o leer-mas-tarde)
+  async function cambiarEstadoEnBack(id, estado) {
+    const respuesta = await pedirAlBack("/api/items/" + id, {
+      method: "PUT",
+      body: JSON.stringify({ estado: estado })
+    });
+    const datos = await respuesta.json();
 
-  function mostrarMensajeLeerMasTarde(mensaje) {
+    if (!respuesta.ok) {
+      throw new Error(datos.mensaje);
+    }
+    return datos;
+  }
+
+  // ----- ayudas para dibujar -----
+
+  function mostrarMensajeEn(contenedor, mensaje) {
     const texto = document.createElement("p");
     texto.className = "mensaje-libros-guardados";
     texto.textContent = mensaje;
-    contenedorLibrosGuardados.replaceChildren(texto);
+    contenedor.replaceChildren(texto);
   }
 
-  function pintarLeerMasTarde(items) {
-    contenedorLibrosGuardados.innerHTML = "";
+  // Casilla con portada, título, autor y botón eliminar (la usan "leer más tarde" y "explorar")
+  function crearCasilla(item, claseCasilla, claseBotonEliminar) {
+    const casilla = document.createElement("div");
+    casilla.className = claseCasilla;
 
-    if (items.length === 0) {
-      mostrarMensajeLeerMasTarde("todavía no guardaste ningún libro");
+    const portada = document.createElement("div");
+    portada.className = "caja-portada-blanca portada-clickeable";
+
+    if (item.portada) {
+      const img = document.createElement("img");
+      img.src = item.portada;
+      img.alt = item.titulo;
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+      portada.appendChild(img);
+    } else {
+      portada.textContent = "sin portada";
+    }
+
+    portada.addEventListener("click", function () {
+      abrirDetalleLibro(item);
+    });
+
+    const datosLibro = document.createElement("div");
+    datosLibro.className = "datos-libro-guardado";
+
+    const titulo = document.createElement("p");
+    titulo.className = "titulo-portada-item";
+    titulo.textContent = item.titulo;
+
+    const autor = document.createElement("p");
+    autor.className = "autor-portada-item";
+    autor.textContent = item.autor;
+
+    datosLibro.append(titulo, autor);
+
+    const botonEliminar = document.createElement("button");
+    botonEliminar.type = "button";
+    botonEliminar.className = "boton-retro-3d boton-mini " + claseBotonEliminar;
+    botonEliminar.textContent = "eliminar";
+    botonEliminar.addEventListener("click", function () {
+      tarjetaQueSeVaAEliminar = casilla;
+      idLibroAEliminar = item._id;
+      modalEliminarLibro.classList.add("modal-activo");
+    });
+
+    casilla.append(portada, datosLibro, botonEliminar);
+    return casilla;
+  }
+
+  // ----- LEER MÁS TARDE -----
+
+  function pintarLeerMasTarde() {
+    const guardados = todosLosItems.filter(function (item) {
+      return item.estado === "leer-mas-tarde";
+    });
+
+    if (guardados.length === 0) {
+      mostrarMensajeEn(contenedorLibrosGuardados, "todavía no guardaste ningún libro");
       return;
     }
 
-    items.forEach(function (item) {
-      const casilla = document.createElement("div");
-      casilla.className = "casilla-libro-guardado";
-
-      const portada = document.createElement("div");
-      portada.className = "caja-portada-blanca portada-clickeable";
-
-      if (item.portada) {
-        const img = document.createElement("img");
-        img.src = item.portada;
-        img.alt = item.titulo;
-        img.style.width = "100%";
-        img.style.height = "100%";
-        img.style.objectFit = "cover";
-        portada.appendChild(img);
-      } else {
-        portada.textContent = "sin portada";
-      }
-
-      const datosLibro = document.createElement("div");
-      datosLibro.className = "datos-libro-guardado";
-
-      const titulo = document.createElement("p");
-      titulo.className = "titulo-portada-item";
-      titulo.textContent = item.titulo;
-
-      const autor = document.createElement("p");
-      autor.className = "autor-portada-item";
-      autor.textContent = item.autor;
-
-      datosLibro.append(titulo, autor);
-
-      const botonEliminar = document.createElement("button");
-      botonEliminar.type = "button";
-      botonEliminar.className = "boton-retro-3d boton-mini boton-eliminar-guardado";
-      botonEliminar.textContent = "eliminar";
-      botonEliminar.addEventListener("click", function() {
-        tarjetaQueSeVaAEliminar = casilla;
-        idLibroAEliminar = item._id;
-        modalEliminarLibro.classList.add("modal-activo");
-      });
-        
-
-      portada.addEventListener("click", function() {
-        abrirDetalleLibro(item);
-      });
-
-      casilla.appendChild(portada);
-      casilla.appendChild(datosLibro);
-      casilla.appendChild(botonEliminar);
-      contenedorLibrosGuardados.appendChild(casilla);
+    contenedorLibrosGuardados.replaceChildren();
+    guardados.forEach(function (item) {
+      contenedorLibrosGuardados.appendChild(
+        crearCasilla(item, "casilla-libro-guardado", "boton-eliminar-guardado")
+      );
     });
   }
 
-  async function cargarLeerMasTarde() {
-    try {
-      const items = await obtenerItems();
-      const guardados = items.filter(function (item) {
-        return item.estado === "leer-mas-tarde";
-      });
-      pintarLeerMasTarde(guardados);
-    } catch (error) {
-      console.error("No se pudieron cargar los libros guardados:", error);
-      mostrarMensajeLeerMasTarde(
-        "no se pudieron cargar los libros: " + error.message
-      );
+  // ----- EXPLORAR (filtro por género y buscador) -----
+
+  function marcarFiltroActivo(genero) {
+    for (let i = 0; i < botonesFiltros.length; i++) {
+      if (botonesFiltros[i].dataset.genero === genero) {
+        botonesFiltros[i].classList.add("filtro-activo");
+      } else {
+        botonesFiltros[i].classList.remove("filtro-activo");
+      }
     }
   }
 
-  cargarLeerMasTarde();
+  function pintarExplorar() {
+    const termino = textoBusqueda.toLowerCase();
+
+    // Si hay búsqueda se busca en todos los géneros; si no, se filtra por el género elegido
+    marcarFiltroActivo(termino ? null : generoActual);
+
+    const resultados = todosLosItems.filter(function (item) {
+      if (termino) {
+        return (item.titulo + " " + item.autor).toLowerCase().includes(termino);
+      }
+      return item.genero === generoActual;
+    });
+
+    if (resultados.length === 0) {
+      mostrarMensajeEn(
+        contenedorExplorar,
+        termino ? "no hay libros que coincidan con \"" + textoBusqueda + "\"" : "no tenés libros de este género"
+      );
+      return;
+    }
+
+    contenedorExplorar.replaceChildren();
+    resultados.forEach(function (item) {
+      contenedorExplorar.appendChild(
+        crearCasilla(item, "casilla-libro-explorar", "boton-eliminar-libro-explorar")
+      );
+    });
+  }
+
+  if (formularioBusqueda) {
+    formularioBusqueda.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+      textoBusqueda = campoBusqueda.value.trim();
+      pintarExplorar();
+      mostrarVista("seccion-explorar", "explorar");
+    });
+  }
+
+  // ----- MI BIBLIOTECA -----
+
+  const COLORES_LOMO = ["lomo-resplandor", "lomo-it", "lomo-misery", "lomo-psicosis"];
+
+  function crearTarjetaProgreso(item, indice) {
+    const tarjeta = document.createElement("article");
+    tarjeta.className = "tarjeta-libro-progreso";
+
+    const lomo = document.createElement("div");
+    lomo.className = "lomo-libro " + COLORES_LOMO[indice % COLORES_LOMO.length];
+
+    const diamante = document.createElement("span");
+    diamante.className = "icono-diamante";
+    diamante.textContent = "◈";
+
+    const textoLomo = document.createElement("span");
+    textoLomo.className = "texto-lomo";
+    textoLomo.textContent = item.titulo.length > 16 ? item.titulo.slice(0, 15) + "…" : item.titulo;
+
+    lomo.append(diamante, textoLomo);
+    lomo.addEventListener("click", function () {
+      abrirDetalleLibro(item);
+    });
+
+    const detalles = document.createElement("div");
+    detalles.className = "detalles-libro-progreso";
+
+    const titulo = document.createElement("p");
+    titulo.className = "titulo-libro-tarjeta";
+    titulo.textContent = item.titulo;
+
+    const autor = document.createElement("p");
+    autor.className = "subtexto-tarjeta";
+    autor.textContent = item.autor;
+
+    const estado = document.createElement("p");
+    estado.className = "porcentaje-lectura";
+    estado.textContent = "leyendo";
+
+    const botones = document.createElement("div");
+    botones.className = "botones-progreso";
+
+    const botonResenar = document.createElement("button");
+    botonResenar.type = "button";
+    botonResenar.className = "boton-retro-3d boton-mini boton-resenar";
+    botonResenar.textContent = "reseñar";
+    botonResenar.addEventListener("click", function () {
+      mostrarVista("seccion-detalle-resena", "tu reseña");
+    });
+
+    const botonTermine = document.createElement("button");
+    botonTermine.type = "button";
+    botonTermine.className = "boton-retro-3d boton-mini";
+    botonTermine.textContent = "terminé";
+    botonTermine.addEventListener("click", async function () {
+      try {
+        await cambiarEstadoEnBack(item._id, "leido");
+        await recargarTodo();
+      } catch (error) {
+        alert("No se pudo cambiar el estado: " + error.message);
+      }
+    });
+
+    botones.append(botonResenar, botonTermine);
+    detalles.append(titulo, autor, estado, botones);
+    tarjeta.append(lomo, detalles);
+    return tarjeta;
+  }
+
+  function pintarBiblioteca() {
+    // Libros en progreso
+    const leyendo = todosLosItems.filter(function (item) {
+      return item.estado === "leyendo";
+    });
+
+    if (leyendo.length === 0) {
+      mostrarMensajeEn(contenedorProgreso, "no estás leyendo ningún libro: pasá uno desde su detalle");
+    } else {
+      contenedorProgreso.replaceChildren();
+      leyendo.forEach(function (item, indice) {
+        contenedorProgreso.appendChild(crearTarjetaProgreso(item, indice));
+      });
+    }
+
+    // Últimos leídos (los 5 más recientes), como lomos en la estantería
+    const leidos = todosLosItems.filter(function (item) {
+      return item.estado === "leido";
+    });
+    const ultimos = leidos.slice(-5);
+
+    estanteriaLeidos.replaceChildren();
+    ultimos.forEach(function (item, indice) {
+      const lomo = document.createElement("div");
+      lomo.className = "lomo-grafico barra-" + ((indice % 5) + 1);
+      lomo.title = item.titulo + " - " + item.autor;
+      lomo.style.cursor = "pointer";
+      lomo.addEventListener("click", function () {
+        abrirDetalleLibro(item);
+      });
+      estanteriaLeidos.appendChild(lomo);
+    });
+
+    textoEstanteFecha.textContent = leidos.length === 0
+      ? "todavía no terminaste ningún libro"
+      : "libros leídos: " + leidos.length;
+  }
+
+  // ----- PERFIL (sale del usuario que dejó el login) -----
+
+  function pintarPerfil() {
+    let usuario = null;
+    try {
+      usuario = JSON.parse(localStorage.getItem("usuario"));
+    } catch (error) {
+      usuario = null;
+    }
+
+    if (usuario && usuario.email) {
+      nombreUsuario.textContent = usuario.email.split("@")[0];
+    }
+
+    const leyendo = todosLosItems.filter(function (item) {
+      return item.estado === "leyendo";
+    }).length;
+
+    biografiaUsuario.textContent =
+      todosLosItems.length + " libros en tu biblioteca, " + leyendo + " leyendo ahora.";
+  }
+
+  // ----- CAMBIAR EL ESTADO DESDE EL DETALLE DEL LIBRO -----
+
+  if (botonGuardarEstado) {
+    botonGuardarEstado.addEventListener("click", async function () {
+      if (libroAbierto === null) {
+        return;
+      }
+
+      try {
+        await cambiarEstadoEnBack(libroAbierto._id, selectEstado.value);
+        const idActual = libroAbierto._id;
+        await recargarTodo();
+        libroAbierto = todosLosItems.find(function (item) {
+          return item._id === idActual;
+        }) || libroAbierto;
+        mensajeDetalle.textContent = "estado actualizado";
+      } catch (error) {
+        mensajeDetalle.textContent = error.message;
+      }
+    });
+  }
+
+  // ----- PEDIR LA LISTA Y PINTAR TODAS LAS PANTALLAS -----
+
+  async function recargarTodo() {
+    try {
+      todosLosItems = await obtenerItems();
+      pintarLeerMasTarde();
+      pintarBiblioteca();
+      pintarExplorar();
+      pintarPerfil();
+    } catch (error) {
+      console.error("No se pudieron cargar los libros:", error);
+      const aviso = "no se pudieron cargar los libros: " + error.message;
+      mostrarMensajeEn(contenedorLibrosGuardados, aviso);
+      mostrarMensajeEn(contenedorProgreso, aviso);
+      mostrarMensajeEn(contenedorExplorar, aviso);
+    }
+  }
+
+  recargarTodo();
 });

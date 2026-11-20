@@ -56,17 +56,15 @@
             <!-- Columna Lateral Izquierda (Perfil de Usuario) -->
             <aside class="columna-perfil-usuario">
                 <div class="marco-avatar-retro">
-                    <img src="foto_perfil.png" alt="Avatar de Kelsey" class="imagen-avatar" onerror="this.style.display='none'">
+                    <img src="foto_perfil.png" alt="Avatar" class="imagen-avatar" onerror="this.style.display='none'">
                     <div class="avatar-reemplazo-degrade">
                         <span class="icono-fantasma-pixel"></span>
                     </div>
                 </div>
 
                 <div class="informacion-usuario">
-                    <h3 class="nombre-usuario">kelsey :)</h3>
-                    <p class="biografia-usuario">
-                        amante del terror y los finales raros. leyendo: El Resplandor y los clásicos de Stephen King.
-                    </p>
+                    <h3 class="nombre-usuario" id="nombre-usuario">tu perfil</h3>
+                    <p class="biografia-usuario" id="biografia-usuario">cargando tu biblioteca...</p>
                 </div>
 
                 <div class="acciones-perfil">
@@ -88,29 +86,14 @@
                         <div class="panel-lila-3d">
                             <h4 class="rotulo-seccion-pixel">FEED DE AMIGOS</h4>
                             <div class="lista-tarjetas-feed">
-                                <article class="tarjeta-publicacion-retro">
-                                    <p class="encabezado-publicacion"><strong>Emily</strong> compartió una reseña de <em>Misery</em>:</p>
-                                    <p class="cuerpo-publicacion">"Inquietante y claustrofóbico. Annie Wilkes es el mejor villano de King..."</p>
-                                    <button class="boton-retro-3d boton-mini">ver reseña</button>
-                                </article>
-                                <article class="tarjeta-publicacion-retro">
-                                    <p class="encabezado-publicacion"><strong>Nico</strong> terminó de leer <em>Psicosis</em></p>
-                                    <p class="cuerpo-publicacion">Calificación: ★★★★★</p>
-                                    <button class="boton-retro-3d boton-mini">dejar comentario</button>
-                                </article>
-                            </div>
+                                    <p class="mensaje-vacio">todavía no hay publicaciones de tus amigos</p>
+                                </div>
                         </div>
 
                         <div class="panel-lila-3d">
                             <h4 class="rotulo-seccion-pixel">LIBRO DESTACADO</h4>
-                            <div class="bloque-libro-destacado">
-                                <div class="portada-libro-ejemplo">THE SHINING</div>
-                                <div class="datos-destacado">
-                                    <p class="titulo-destacado">EL RESPLANDOR</p>
-                                    <p class="autor-destacado">Stephen King</p>
-                                    <p class="resumen-destacado">¿Te animás a entrar al Hotel Overlook?</p>
-                                    <button class="boton-retro-3d boton-mini" id="boton-agregar-leertarde-destacado">leer más tarde</button>
-                                </div>
+                            <div class="bloque-libro-destacado" id="contenedor-destacado">
+                                <p class="mensaje-vacio">cargando libro destacado...</p>
                             </div>
                         </div>
                     </div>
@@ -123,107 +106,13 @@
                             <span class="subtitulo-seccion-mono">tus libros en progreso</span>
 
                             <div class="grilla-libros-progreso" id="contenedor-libros-progreso">
-                                <article class="tarjeta-libro-progreso">
-                                    <div class="lomo-libro lomo-resplandor">
-                                        <span class="icono-diamante">◈</span>
-                                        <span class="texto-lomo">EL RESPLANDOR</span>
-                                    </div>
-                                    <div class="detalles-libro-progreso">
-                                        <p class="titulo-libro-tarjeta">EL RESPLANDOR</p>
-                                        <p class="subtexto-tarjeta">Stephen King</p>
-                                        <p class="porcentaje-lectura">27% leído</p>
-                                        <div class="barra-bloques-retro">
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                        </div>
-                                        <p class="paginas-lectura">148/550 págs</p>
-                                        <button class="boton-retro-3d boton-mini boton-resenar">reseñar</button>
-                                    </div>
-                                </article>
-
-                                <article class="tarjeta-libro-progreso">
-                                    <div class="lomo-libro lomo-it">
-                                        <span class="icono-diamante">◈</span>
-                                        <span class="texto-lomo">IT</span>
-                                    </div>
-                                    <div class="detalles-libro-progreso">
-                                        <p class="titulo-libro-tarjeta">IT</p>
-                                        <p class="subtexto-tarjeta">Stephen King</p>
-                                        <p class="porcentaje-lectura">60% leído</p>
-                                        <div class="barra-bloques-retro">
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                        </div>
-                                        <p class="paginas-lectura">330/550 págs</p>
-                                        <button class="boton-retro-3d boton-mini boton-resenar">reseñar</button>
-                                    </div>
-                                </article>
-
-                                <article class="tarjeta-libro-progreso">
-                                    <div class="lomo-libro lomo-misery">
-                                        <span class="icono-diamante">◈</span>
-                                        <span class="texto-lomo">MISERY</span>
-                                    </div>
-                                    <div class="detalles-libro-progreso">
-                                        <p class="titulo-libro-tarjeta">MISERY</p>
-                                        <p class="subtexto-tarjeta">Stephen King</p>
-                                        <p class="porcentaje-lectura">85% leído</p>
-                                        <div class="barra-bloques-retro">
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso"></span>
-                                        </div>
-                                        <p class="paginas-lectura">467/550 págs</p>
-                                        <button class="boton-retro-3d boton-mini boton-resenar">reseñar</button>
-                                    </div>
-                                </article>
-
-                                <article class="tarjeta-libro-progreso">
-                                    <div class="lomo-libro lomo-psicosis">
-                                        <span class="icono-diamante">◈</span>
-                                        <span class="texto-lomo">PSICOSIS</span>
-                                    </div>
-                                    <div class="detalles-libro-progreso">
-                                        <p class="titulo-libro-tarjeta">PSICOSIS</p>
-                                        <p class="subtexto-tarjeta">Stephen King</p>
-                                        <p class="porcentaje-lectura">40% leído</p>
-                                        <div class="barra-bloques-retro">
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso activo"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                            <span class="bloque-progreso"></span>
-                                        </div>
-                                        <p class="paginas-lectura">220/550 págs</p>
-                                        <button class="boton-retro-3d boton-mini boton-resenar">reseñar</button>
-                                    </div>
-                                </article>
+                                <p class="mensaje-libros-guardados">cargando libros desde la base de datos...</p>
                             </div>
                         </div>
 
                         <div class="panel-lila-3d panel-ultimos-leidos">
                             <span class="subtitulo-seccion-mono">tus últimos libros leídos</span>
-                            <div class="estanteria-libros-retro">
+                            <div class="estanteria-libros-retro" id="estanteria-leidos">
                                 <!-- <div class="lomo-grafico barra-1"></div>
                                 <div class="lomo-grafico barra-2"></div>
                                 <div class="lomo-grafico barra-3"></div>
@@ -231,7 +120,7 @@
                                 <div class="lomo-grafico barra-5"></div> -->
                             </div>
                             <!-- <div class="base-estante-madera"></div> -->
-                            <p class="texto-estante-fecha">terminado el 12/10/2026</p>
+                            <p class="texto-estante-fecha" id="texto-estante-fecha"></p>
                             <p class="texto-estante-ayuda">tocá un lomo para ver tu reseña</p>
 
                             <div class="contenedor-agregar-libro-biblioteca">
@@ -247,60 +136,15 @@
                         <div class="panel-lila-3d columna-amplia">
                             <span class="subtitulo-seccion-mono">tus reseñas más recientes</span>
                             <div class="lista-elementos-vertical" id="contenedor-mis-resenas">
-                                
-                                <article class="tarjeta-fila-resena">
-                                    <div class="datos-fila-resena">
-                                        <h5 class="encabezado-fila-resena">THE SHINING - STEPHEN KING (reseña)</h5>
-                                        <p class="extracto-resena">Una novela que te hace dudar de todo. El hotel es un personaje más y el final me dejó sin dormir dos noches...</p>
-                                        <div class="botones-fila-resena">
-                                            <button type="button" class="boton-retro-3d boton-mini">editar</button>
-                                            <button type="button" class="boton-retro-3d boton-mini boton-eliminar">eliminar</button>
-                                        </div>
-                                    </div>
-                                    <div class="miniatura-portada-libro">
-                                        <div class="libro-resplandor-mini">THE SHINING</div>
-                                        <button type="button" class="boton-retro-3d boton-micro boton-ir-detalle-libro">ver más</button>
-                                    </div>
-                                </article>
-
-                                <article class="tarjeta-fila-resena">
-                                    <div class="datos-fila-resena">
-                                        <h5 class="encabezado-fila-resena">MISERY - STEPHEN KING (reseña)</h5>
-                                        <p class="extracto-resena">Tensa de principio a fin. Te hace sentir atrapado en esa cabaña nevada con Annie.</p>
-                                        <div class="botones-fila-resena">
-                                            <button type="button" class="boton-retro-3d boton-mini">editar</button>
-                                            <button type="button" class="boton-retro-3d boton-mini boton-eliminar">eliminar</button>
-                                        </div>
-                                    </div>
-                                    <div class="miniatura-portada-libro">
-                                        <div class="libro-resplandor-mini lomo-misery">MISERY</div>
-                                        <button type="button" class="boton-retro-3d boton-micro boton-ir-detalle-libro">ver más</button>
-                                    </div>
-                                </article>
-
-                            </div>
+                                    <p class="mensaje-vacio">todavía no escribiste ninguna reseña</p>
+                                </div>
                         </div>
 
                         <div class="panel-lila-3d columna-lateral-comentarios">
                             <span class="subtitulo-seccion-mono">comentarios recientes de amigos en tus reseñas:</span>
                             <div class="lista-comentarios-recibidos">
-                                <article class="tarjeta-comentario-lateral">
-                                    <div class="avatar-amigo-recuadro"></div>
-                                    <div class="cuerpo-comentario-lateral">
-                                        <p class="autor-comentario-lateral">EMILY:</p>
-                                        <p class="texto-comentario-lateral">Totalmente de acuerdo, el hotel es el verdadero villano.</p>
-                                        <button type="button" class="boton-retro-3d boton-micro enlace-ver-mas-comentario">ver más</button>
-                                    </div>
-                                </article>
-                                <article class="tarjeta-comentario-lateral">
-                                    <div class="avatar-amigo-recuadro"></div>
-                                    <div class="cuerpo-comentario-lateral">
-                                        <p class="autor-comentario-lateral">NICO:</p>
-                                        <p class="texto-comentario-lateral">Me encantó cómo describís el hotel, da escalofríos.</p>
-                                        <button type="button" class="boton-retro-3d boton-micro enlace-ver-mas-comentario">ver más</button>
-                                    </div>
-                                </article>
-                            </div>
+                                    <p class="mensaje-vacio">todavía no hay comentarios en tus reseñas</p>
+                                </div>
                         </div>
                     </div>
                 </section>
@@ -310,31 +154,7 @@
                     <div class="panel-lila-3d contenedor-comentarios-completo">
                         <span class="subtitulo-seccion-mono">tus comentarios más recientes</span>
                         <div class="grilla-comentarios-publicaciones" id="contenedor-mis-comentarios">
-                            
-                            <article class="tarjeta-comentario-grilla">
-                                <div class="cuerpo-comentario-grilla">
-                                    <h5 class="titulo-origen-comentario">COMENTARIOS EN LA PUBLICACIÓN DE EMILY:</h5>
-                                    <p class="parrafo-comentario">Totalmente de acuerdo, el hotel es el verdadero villano. ¿Viste también la película o solo el libro?</p>
-                                    <div class="acciones-comentario-grilla">
-                                        <button type="button" class="boton-retro-3d boton-mini">editar</button>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar">eliminar</button>
-                                    </div>
-                                </div>
-                                <div class="portada-comentario-item">THE SHINING</div>
-                            </article>
-
-                            <article class="tarjeta-comentario-grilla">
-                                <div class="cuerpo-comentario-grilla">
-                                    <h5 class="titulo-origen-comentario">COMENTARIOS EN LA PUBLICACIÓN DE EMILY:</h5>
-                                    <p class="parrafo-comentario">La escena de la máquina de escribir me dio pesadillas una semana entera.</p>
-                                    <div class="acciones-comentario-grilla">
-                                        <button type="button" class="boton-retro-3d boton-mini">editar</button>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar">eliminar</button>
-                                    </div>
-                                </div>
-                                <div class="portada-comentario-item">THE SHINING</div>
-                            </article>
-
+                            <p class="mensaje-vacio">todavía no hiciste ningún comentario</p>
                         </div>
                     </div>
                 </section>
@@ -365,54 +185,7 @@
                                 <span class="subtitulo-seccion-mono centrado">EXPLORAR</span>
                                 
                                 <div class="grilla-libros-explorar" id="contenedor-libros-explorar">
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
-                                    <div class="casilla-libro-explorar" data-genero="suspenso">
-                                        <div class="caja-portada-blanca portada-clickeable"></div>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-eliminar-libro-explorar">eliminar</button>
-                                    </div>
+                                    <p class="mensaje-libros-guardados">cargando libros desde la base de datos...</p>
                                 </div>
                             </div>
                         </div>
@@ -429,32 +202,14 @@
 
                             <article class="hoja-papel-resena">
                                 <h4 class="titulo-hoja-pixel">TU RESEÑA</h4>
-                                <div class="estrellas-calificacion" aria-label="Calificación 4 de 5 estrellas">
-                                    ★★★★☆
-                                </div>
-                                <p class="cuerpo-texto-hoja">
-                                    Una novela que te hace dudar de todo. El hotel es un personaje más y el final me dejó sin dormir dos noches. Jack se va rompiendo de a poco y eso da más miedo que cualquier fantasma.
-                                </p>
+                                <p class="mensaje-vacio">todavía no escribiste una reseña de este libro</p>
                             </article>
                         </div>
 
                         <aside class="columna-comentarios-morada">
                             <h4 class="encabezado-comentarios-pixel">COMENTARIOS</h4>
                             <div class="lista-comentarios-desplazable">
-                                <div class="tarjeta-comentario-negra">
-                                    <div class="avatar-amigo-gradiente"></div>
-                                    <div class="info-comentario-negro">
-                                        <p class="texto-comentario-negro">Me encantó cómo describes el hotel, da escalofríos.</p>
-                                        <button type="button" class="boton-retro-3d boton-micro">ver más</button>
-                                    </div>
-                                </div>
-                                <div class="tarjeta-comentario-negra">
-                                    <div class="avatar-amigo-gradiente"></div>
-                                    <div class="info-comentario-negro">
-                                        <p class="texto-comentario-negro">Totalmente de acuerdo, el hotel es el villano.</p>
-                                        <button type="button" class="boton-retro-3d boton-micro">ver más</button>
-                                    </div>
-                                </div>
+                                <p class="mensaje-vacio">todavía no hay comentarios</p>
                             </div>
                             
                             <div class="pie-volver-biblioteca">
@@ -468,6 +223,24 @@
 
                 <!-- 8. SECCIÓN: DETALLE COMPLETO DEL LIBRO (CLICK EN EL LIBRO) -->
                 <section class="vista-seccion" id="seccion-detalle-libro">
+                    <div class="panel-lila-3d barra-info-libro" id="barra-info-libro" style="display: none;">
+                        <div class="datos-info-libro">
+                            <h3 class="titulo-info-libro" id="detalle-titulo"></h3>
+                            <p class="autor-info-libro" id="detalle-autor"></p>
+                            <p class="genero-info-libro" id="detalle-genero"></p>
+                            <p class="descripcion-info-libro" id="detalle-descripcion"></p>
+                        </div>
+                        <div class="acciones-info-libro">
+                            <label for="detalle-estado" class="etiqueta-formulario">estado del libro:</label>
+                            <select id="detalle-estado" class="campo-retro campo-select-estado">
+                                <option value="leer-mas-tarde">leer más tarde</option>
+                                <option value="leyendo">leyendo</option>
+                                <option value="leido">leído</option>
+                            </select>
+                            <button type="button" class="boton-retro-3d boton-mini" id="boton-guardar-estado">guardar estado</button>
+                        </div>
+                        <p class="mensaje-info-libro" id="detalle-mensaje"></p>
+                    </div>
                     <div class="contenedor-detalle-resena">
                         <div class="panel-lila-3d panel-escenario-inclinado">
                             <div class="portada-inclinada-libro">
@@ -475,21 +248,10 @@
                             </div>
 
                             <div class="libreta-resenas-comunidad">
-                                <div class="cabecera-libreta-pixel">RESENAS</div>
+                                <div class="cabecera-libreta-pixel">RESEÑAS</div>
                                 
                                 <div class="cuerpo-libreta-scroll">
-                                    <div class="fila-resena-comunidad">
-                                        <div class="avatar-amigo-gradiente"></div>
-                                        <p class="texto-resena-comunidad">Una novela que te atrapa desde las primeras páginas.</p>
-                                    </div>
-                                    <div class="fila-resena-comunidad">
-                                        <div class="avatar-amigo-gradiente"></div>
-                                        <p class="texto-resena-comunidad">Jack Torrance es uno de los personajes mejor construidos.</p>
-                                    </div>
-                                    <div class="fila-resena-comunidad">
-                                        <div class="avatar-amigo-gradiente"></div>
-                                        <p class="texto-resena-comunidad">Excelente ambientación y tensión psicológica in crescendo.</p>
-                                    </div>
+                                    <p class="mensaje-vacio">todavía no hay reseñas de este libro</p>
                                 </div>
 
                                 <div class="acciones-libreta-resenas">
@@ -502,13 +264,7 @@
                         <aside class="columna-comentarios-morada">
                             <h4 class="encabezado-comentarios-pixel">COMENTARIOS</h4>
                             <div class="lista-comentarios-desplazable">
-                                <div class="tarjeta-comentario-negra">
-                                    <div class="avatar-amigo-gradiente"></div>
-                                    <div class="info-comentario-negro">
-                                        <p class="texto-comentario-negro">Me encantó cómo describe el hotel, da escalofríos.</p>
-                                        <button type="button" class="boton-retro-3d boton-micro">ver más</button>
-                                    </div>
-                                </div>
+                                <p class="mensaje-vacio">todavía no hay comentarios</p>
                             </div>
 
                             <div class="acciones-columna-comentarios">
@@ -527,7 +283,7 @@
                                 <img src="the_shining.jpg" alt="Portada The Shining" class="imagen-portada-hilo" onerror="this.src='https://covers.openlibrary.org/b/isbn/9780307743657-M.jpg'">
                             </div>
                             <div class="datos-hilo-resena">
-                                <h3 class="titulo-hilo-pixel">RESENA DE THE SHINING - leer comentarios debajo</h3>
+                                <h3 class="titulo-hilo-pixel">RESEÑA - leer comentarios debajo</h3>
                             </div>
                         </header>
 
@@ -535,20 +291,7 @@
                             <span class="etiqueta-morada-pixel">COMENTARIOS</span>
                             
                             <div class="lista-hilos-conversacion">
-                                <article class="grupo-comentario-respuesta">
-                                    <div class="bloque-comentario-negro">
-                                        <div class="avatar-usuario-comentario"></div>
-                                        <div class="contenido-comentario-negro">
-                                            <p class="texto-hilo-comentario">Totalmente de acuerdo con tu punto sobre el aislamiento.</p>
-                                        </div>
-                                        <span class="corazon-pixel-rojo" aria-label="Favorito">❤</span>
-                                    </div>
-
-                                    <div class="caja-responder-hundida">
-                                        <textarea class="campo-texto-responder" placeholder="responder"></textarea>
-                                        <button type="button" class="boton-retro-3d boton-mini boton-enviar-respuesta">enviar</button>
-                                    </div>
-                                </article>
+                                <p class="mensaje-vacio">todavía no hay comentarios en este hilo</p>
                             </div>
 
                             <div class="pie-volver-resenas">

@@ -6,6 +6,7 @@ import cors from "cors"
 import { conectarBase } from "./config/db.js"
 import usuariosRouter from "./routes/usuarios.routes.js"
 import itemsRouter from "./routes/items.routes.js"
+import resenasRouter from "./routes/resenas.routes.js"
 import { pedirToken } from "./middlewares/autorizacion.middleware.js"
 
 await conectarBase()
@@ -30,6 +31,9 @@ app.use("/api", usuariosRouter)
 
 // CON candado: exigi el token para operar con los libros
 app.use("/api/items", pedirToken, itemsRouter)
+
+// CON candado: las reseñas también
+app.use("/api/resenas", pedirToken, resenasRouter)
 
 // 404 general
 app.use((req, res) => {

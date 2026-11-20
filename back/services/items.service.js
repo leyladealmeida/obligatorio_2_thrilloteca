@@ -7,7 +7,8 @@ import {
   eliminar,
   actualizar
 } from "../repositories/items.repository.js"
-import { ESTADOS } from "../models/item.js"
+import { ESTADOS, GENEROS } from "../models/item.js"
+import { eliminarPorItem } from "../repositories/resenas.repository.js"
 
 const AUTORES_PERMITIDOS = [
   "Stephen King",
@@ -23,6 +24,14 @@ function errorCon(status, mensaje) {
   const error = new Error(mensaje)
   error.status = status
   return error
+}
+
+// Google Books devuelve categorías en inglés ("Fiction / Horror"). Las traducimos a los 3 géneros del foro
+function deducirGenero(categorias) {
+  const texto = (Array.isArray(categorias) ? categorias.join(" ") : "").toLowerCase()
+  if (texto.includes("horror") || texto.includes("terror")) return "terror"
+  if (texto.includes("thriller")) return "thriller"
+  return "suspenso"
 }
 
 async function obtenerInfoDeGoogle(isbn) {
@@ -50,6 +59,7 @@ async function obtenerInfoDeGoogle(isbn) {
     titulo: info.title,
     autor: info.authors.join(", "),
     portada: portadaUrl,
+    genero: deducirGenero(info.categories),
     descripcion: info.description || ""
   }
 }
@@ -72,6 +82,8 @@ function validar(datos) {
     titulo: titulo, 
     autor: autor,
     portada: datos.portada || "",
+    descripcion: datos.descripcion || "",
+    genero: GENEROS.includes(datos.genero) ? datos.genero : "suspenso",
     estado: datos.estado || "leer-mas-tarde"
   }
 }
@@ -95,13 +107,15 @@ export async function crearItem(datos, idUsuario) {
     )
 
     if (duplicado) {
-      throw errorCon(409, "¡Este libro ya está en tu biblioteca de Leer más tarde!")
+      throw errorCon(409, "¡Este libro ya está en tu biblioteca!")
     }
 
     datosFinales = {
       titulo: infoGoogle.titulo,
       autor: infoGoogle.autor,
       portada: infoGoogle.portada,
+      genero: infoGoogle.genero,
+      descripcion: infoGoogle.descripcion,
       estado: datos.estado || "leer-mas-tarde"
     }
   }
@@ -124,6 +138,9 @@ export async function borrarItem(id, idUsuario) {
   if (item.usuario.toString() !== idUsuario) {
     throw errorCon(403, "no tenés permiso para eliminar este libro")
   }
+
+  // Al borrar un libro se borran también sus reseñas
+  await eliminarPorItem(id)
 
   return await eliminar(id)
 }
