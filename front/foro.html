@@ -386,6 +386,33 @@
         </div>
     </div>
 
+    <!-- Modal: Agregar Reseña -->
+    <div class="capa-fondo-modal" id="modal-agregar-resena" aria-hidden="true">
+        <div class="estructura-ventana-modal">
+            <div class="franja-degrade-modal"></div>
+            <div class="cuerpo-modal-lila">
+                <h3 class="etiqueta-modal-mono" id="titulo-modal-resena">escribí tu reseña</h3>
+                <form class="formulario-modal-isbn" id="formulario-modal-resena" novalidate>
+                    <label for="select-calificacion-resena" class="etiqueta-formulario">calificación (1 a 5):</label>
+                    <select id="select-calificacion-resena" class="campo-retro campo-modal-ancho">
+                        <option value="5">★★★★★ (5)</option>
+                        <option value="4">★★★★☆ (4)</option>
+                        <option value="3">★★★☆☆ (3)</option>
+                        <option value="2">★★☆☆☆ (2)</option>
+                        <option value="1">★☆☆☆☆ (1)</option>
+                    </select>
+                    <textarea id="campo-texto-resena" class="campo-retro campo-modal-ancho" style="height: 100px; resize: vertical; text-align: left;" placeholder="¿qué te pareció el libro?"></textarea>
+                    <span class="mensaje-error-modal" id="error-resena"></span>
+                    <div class="botones-fila-modal">
+                        <button type="submit" class="boton-retro-3d" id="boton-confirmar-resena">publicar</button>
+                        <button type="button" class="boton-retro-3d" id="boton-cancelar-resena">cancelar</button>
+                    </div>
+                </form>
+            </div>
+            <div class="franja-degrade-modal"></div>
+        </div>
+    </div>
+
     <script src="controlador-foro.js"></script>
 </body>
 </html>

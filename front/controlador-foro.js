@@ -716,7 +716,7 @@ document.addEventListener("DOMContentLoaded", function () {
     botonResenar.className = "boton-retro-3d boton-mini boton-resenar";
     botonResenar.textContent = "reseñar";
     botonResenar.addEventListener("click", function () {
-      mostrarVista("seccion-detalle-resena", "tu reseña");
+      abrirModalResena(item);
     });
 
     const botonTermine = document.createElement("button");
@@ -820,6 +820,194 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // ==============================================================
+  // 10. RESEÑAS REALES CON EL BACK (/api/resenas)
+  // ==============================================================
+
+  let libroParaResenar = null;
+  let todasLasResenas = [];
+
+  const modalAgregarResena = document.getElementById("modal-agregar-resena");
+  const tituloModalResena = document.getElementById("titulo-modal-resena");
+  const formResena = document.getElementById("formulario-modal-resena");
+  const selectCalificacion = document.getElementById("select-calificacion-resena");
+  const campoTextoResena = document.getElementById("campo-texto-resena");
+  const errorResena = document.getElementById("error-resena");
+  const botonCancelarResena = document.getElementById("boton-cancelar-resena");
+  const botonAgregarResenaDetalle = document.getElementById("boton-agregar-resena-libro");
+  const contenedorMisResenas = document.getElementById("contenedor-mis-resenas");
+  const contenedorFeed = document.querySelector(".lista-tarjetas-feed");
+
+  function abrirModalResena(item) {
+    if (!item || !item._id) {
+      alert("Abrí primero un libro de tu biblioteca para reseñarlo.");
+      return;
+    }
+    libroParaResenar = item;
+    tituloModalResena.textContent = "reseñar: " + item.titulo;
+    campoTextoResena.value = "";
+    selectCalificacion.value = "5";
+    errorResena.classList.remove("activo");
+    modalAgregarResena.classList.add("modal-activo");
+  }
+
+  if (botonCancelarResena) {
+    botonCancelarResena.addEventListener("click", function () {
+      libroParaResenar = null;
+      modalAgregarResena.classList.remove("modal-activo");
+    });
+  }
+
+  // Botón "agregar reseña" dentro de Detalle del Libro
+  if (botonAgregarResenaDetalle) {
+    botonAgregarResenaDetalle.addEventListener("click", function () {
+      abrirModalResena(libroAbierto);
+    });
+  }
+
+  // Enviar nueva reseña al back (POST /api/resenas)
+  if (formResena) {
+    formResena.addEventListener("submit", async function (evento) {
+      evento.preventDefault();
+      errorResena.classList.remove("activo");
+
+      const texto = campoTextoResena.value.trim();
+      const calificacion = Number(selectCalificacion.value);
+
+      if (!texto) {
+        errorResena.textContent = "escribí tu reseña antes de publicar";
+        errorResena.classList.add("activo");
+        return;
+      }
+
+      try {
+        const respuesta = await pedirAlBack("/api/resenas", {
+          method: "POST",
+          body: JSON.stringify({
+            itemId: libroParaResenar._id,
+            texto: texto,
+            calificacion: calificacion
+          })
+        });
+
+        const datos = await respuesta.json();
+        if (!respuesta.ok) {
+          throw new Error(datos.mensaje || "no se pudo guardar la reseña");
+        }
+
+        alert("¡Reseña publicada!");
+        modalAgregarResena.classList.remove("modal-activo");
+        libroParaResenar = null;
+        await cargarResenas();
+        mostrarVista("seccion-resenas", "mis reseñas");
+      } catch (error) {
+        errorResena.textContent = error.message;
+        errorResena.classList.add("activo");
+      }
+    });
+  }
+
+  // Dibujar "Mis reseñas" y el "Feed de inicio"
+  function pintarMisResenas(lista) {
+    if (!contenedorMisResenas) return;
+
+    if (lista.length === 0) {
+      mostrarMensajeEn(contenedorMisResenas, "todavía no escribiste ninguna reseña");
+      return;
+    }
+
+    contenedorMisResenas.replaceChildren();
+    lista.forEach(function (resena) {
+      const fila = document.createElement("article");
+      fila.className = "tarjeta-fila-resena";
+
+      const datosDiv = document.createElement("div");
+      datosDiv.className = "datos-fila-resena";
+
+      const encabezado = document.createElement("h5");
+      encabezado.className = "encabezado-fila-resena";
+      const estrellas = "★".repeat(resena.calificacion) + "☆".repeat(5 - resena.calificacion);
+      encabezado.textContent = resena.item.titulo + " - " + estrellas;
+
+      const extracto = document.createElement("p");
+      extracto.className = "extracto-resena";
+      extracto.textContent = resena.texto;
+
+      const botones = document.createElement("div");
+      botones.className = "botones-fila-resena";
+
+      const btnEliminar = document.createElement("button");
+      btnEliminar.type = "button";
+      btnEliminar.className = "boton-retro-3d boton-mini boton-eliminar";
+      btnEliminar.textContent = "eliminar";
+      btnEliminar.addEventListener("click", async function () {
+        if (!confirm("¿Eliminar esta reseña?")) return;
+        try {
+          const resp = await pedirAlBack("/api/resenas/" + resena._id, { method: "DELETE" });
+          if (!resp.ok) {
+            const err = await resp.json();
+            throw new Error(err.mensaje);
+          }
+          await cargarResenas();
+        } catch (error) {
+          alert("Error al eliminar reseña: " + error.message);
+        }
+      });
+
+      botones.appendChild(btnEliminar);
+      datosDiv.append(encabezado, extracto, botones);
+      fila.appendChild(datosDiv);
+      contenedorMisResenas.appendChild(fila);
+    });
+  }
+
+  function pintarFeedInicio(recientes) {
+    if (!contenedorFeed) return;
+    if (recientes.length === 0) {
+      mostrarMensajeEn(contenedorFeed, "todavía no hay publicaciones de tus amigos");
+      return;
+    }
+
+    contenedorFeed.replaceChildren();
+    recientes.forEach(function (resena) {
+      const art = document.createElement("article");
+      art.className = "tarjeta-publicacion-retro";
+
+      const enc = document.createElement("p");
+      enc.className = "encabezado-publicacion";
+      const nombre = resena.usuario && resena.usuario.email ? resena.usuario.email.split("@")[0] : "usuario";
+      enc.textContent = nombre + " reseñó " + resena.item.titulo + " (" + "★".repeat(resena.calificacion) + "):";
+
+      const cuerpo = document.createElement("p");
+      cuerpo.className = "cuerpo-publicacion";
+      cuerpo.textContent = "\"" + resena.texto + "\"";
+
+      art.append(enc, cuerpo);
+      contenedorFeed.appendChild(art);
+    });
+  }
+
+  async function cargarResenas() {
+    try {
+      const [respMias, respRecientes] = await Promise.all([
+        pedirAlBack("/api/resenas"),
+        pedirAlBack("/api/resenas/recientes")
+      ]);
+      if (respMias.ok) {
+        todasLasResenas = await respMias.json();
+        pintarMisResenas(todasLasResenas);
+      }
+      if (respRecientes.ok) {
+        const recientes = await respRecientes.json();
+        pintarFeedInicio(recientes);
+      }
+    } catch (error) {
+      console.error("Error cargando reseñas:", error);
+    }
+  }
+
+  cargarResenas();
+
   // ----- PEDIR LA LISTA Y PINTAR TODAS LAS PANTALLAS -----
 
   async function recargarTodo() {
@@ -829,6 +1017,7 @@ document.addEventListener("DOMContentLoaded", function () {
       pintarBiblioteca();
       pintarExplorar();
       pintarPerfil();
+      cargarResenas();
     } catch (error) {
       console.error("No se pudieron cargar los libros:", error);
       const aviso = "no se pudieron cargar los libros: " + error.message;
