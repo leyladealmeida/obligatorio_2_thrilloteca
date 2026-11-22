@@ -413,6 +413,25 @@
         </div>
     </div>
 
+    <!-- Modal: Agregar Comentario -->
+    <div class="capa-fondo-modal" id="modal-agregar-comentario" aria-hidden="true">
+        <div class="estructura-ventana-modal">
+            <div class="franja-degrade-modal"></div>
+            <div class="cuerpo-modal-lila">
+                <h3 class="etiqueta-modal-mono">escribí tu comentario</h3>
+                <form class="formulario-modal-isbn" id="formulario-modal-comentario" novalidate>
+                    <textarea id="campo-texto-comentario" class="campo-retro campo-modal-ancho" style="height: 100px; resize: vertical; text-align: left;" placeholder="escribí qué pensás de la reseña..."></textarea>
+                    <span class="mensaje-error-modal" id="error-comentario"></span>
+                    <div class="botones-fila-modal">
+                        <button type="submit" class="boton-retro-3d" id="boton-confirmar-comentario">comentar</button>
+                        <button type="button" class="boton-retro-3d" id="boton-cancelar-comentario">cancelar</button>
+                    </div>
+                </form>
+            </div>
+            <div class="franja-degrade-modal"></div>
+        </div>
+    </div>
+
     <script src="controlador-foro.js"></script>
 </body>
 </html>
