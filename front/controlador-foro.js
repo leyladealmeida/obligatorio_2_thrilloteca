@@ -181,6 +181,8 @@ document.addEventListener("DOMContentLoaded", function () {
       barra.style.display = "none";
     }
 
+      cargarResenasDeLibro(item ? item._id : null); 
+
     mostrarVista("seccion-detalle-libro", "detalle del libro");
     cambiarConsejo("Puedes cambiar el estado de tu libro desde acá");
   }
@@ -897,6 +899,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         alert("¡Reseña publicada!");
         modalAgregarResena.classList.remove("modal-activo");
+        await cargarResenasDeLibro(libroParaResenar._id);
         libroParaResenar = null;
         await cargarResenas();
         mostrarVista("seccion-resenas", "mis reseñas");
@@ -1007,6 +1010,43 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   cargarResenas();
+
+  const contenedorResenasLibro = document.querySelector("#seccion-detalle-libro .cuerpo-libreta-scroll");
+
+  async function cargarResenasDeLibro(idItem) {
+    if (!contenedorResenasLibro) return;
+    if (!idItem) {
+      mostrarMensajeEn(contenedorResenasLibro, "todavía no hay reseñas de este libro");
+      return;
+    }
+
+    try {
+      const resp = await pedirAlBack("/api/resenas/libro/" + idItem);
+      const lista = await resp.json();
+
+      if (!resp.ok || lista.length === 0) {
+        mostrarMensajeEn(contenedorResenasLibro, "todavía no hay reseñas de este libro");
+        return;
+      }
+
+      contenedorResenasLibro.replaceChildren();
+      lista.forEach(function (resena) {
+        const fila = document.createElement("div");
+        fila.className = "fila-resena-comunidad";
+
+        const texto = document.createElement("p");
+        texto.className = "texto-resena-comunidad";
+        const autor = resena.usuario && resena.usuario.email ? resena.usuario.email.split("@")[0] : "usuario";
+        const estrellas = "★".repeat(resena.calificacion);
+        texto.textContent = autor + " (" + estrellas + "): " + resena.texto;
+
+        fila.append (texto);
+        contenedorResenasLibro.appendChild(fila);
+      });
+    } catch (error) {
+      mostrarMensajeEn(contenedorResenasLibro, "no se pudieron cargar las reseñas");
+    }
+  }
 
   // ----- PEDIR LA LISTA Y PINTAR TODAS LAS PANTALLAS -----
 

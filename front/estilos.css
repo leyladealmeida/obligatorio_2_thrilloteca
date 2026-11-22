@@ -1221,3 +1221,37 @@
 .lista-comentarios-desplazable .mensaje-vacio,
 .lista-hilos-conversacion .mensaje-vacio { color: #cccccc; }
 .hoja-papel-resena .mensaje-vacio { text-align: center; margin-top: 20px; }
+
+/* Ajustes para que Detalle del Libro no estire la ventana */
+#seccion-detalle-libro.vista-activa {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 10px;
+}
+
+#seccion-detalle-libro .barra-info-libro {
+  padding: 10px 14px;
+  flex-shrink: 0;
+}
+
+#seccion-detalle-libro .contenedor-detalle-resena {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+
+/* Subir los botones de comentarios para que no queden abajo de todo */
+#seccion-detalle-libro .columna-comentarios-morada {
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+#seccion-detalle-libro .lista-comentarios-desplazable {
+  flex: 0 1 auto;
+  max-height: 230px;
+}
+
+#seccion-detalle-libro .acciones-columna-comentarios {
+  margin-top: 4px;
+}
