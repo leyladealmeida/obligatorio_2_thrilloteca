@@ -1177,11 +1177,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  async function cargarComentariosDeResena(idResena) {
+ async function cargarComentariosDeResena(idResena) {
     if (!listaComentariosDetalle) return;
     if (!idResena) {
       mostrarMensajeEn(listaComentariosDetalle, "todavía no hay comentarios");
       return;
+    }
+
+    let usuarioActual = null;
+    try {
+      usuarioActual = JSON.parse(localStorage.getItem("usuario"));
+    } catch (e) {
+      usuarioActual = null;
     }
 
     try {
@@ -1207,6 +1214,31 @@ document.addEventListener("DOMContentLoaded", function () {
         p.textContent = autor + ": " + com.texto;
 
         info.appendChild(p);
+
+        // Si el comentario es del usuario logueado, mostramos el botón eliminar
+        const idAutor = com.usuario && (com.usuario._id || com.usuario);
+        if (usuarioActual && idAutor === usuarioActual._id) {
+          const btnEliminar = document.createElement("button");
+          btnEliminar.type = "button";
+          btnEliminar.className = "boton-retro-3d boton-micro boton-eliminar";
+          btnEliminar.textContent = "eliminar";
+          btnEliminar.addEventListener("click", async function () {
+            if (!confirm("¿Eliminar este comentario?")) return;
+            try {
+              const r = await pedirAlBack("/api/comentarios/" + com._id, { method: "DELETE" });
+              if (!r.ok) {
+                const err = await r.json();
+                throw new Error(err.mensaje || "no se pudo eliminar");
+              }
+              await cargarComentariosDeResena(idResena);
+              await cargarMisComentarios();
+            } catch (error) {
+              alert("Error: " + error.message);
+            }
+          });
+          info.appendChild(btnEliminar);
+        }
+
         tarjeta.appendChild(info);
         listaComentariosDetalle.appendChild(tarjeta);
       });
