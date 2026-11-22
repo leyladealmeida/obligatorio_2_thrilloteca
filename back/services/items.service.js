@@ -45,10 +45,24 @@ async function obtenerInfoDeGoogle(isbn) {
     throw errorCon(404, "no se encontró ningún libro con ese ISBN")
   }
 
-  const info = datos.items[0].volumeInfo
+  const volumen = datos.items[0]
+  const info = volumen.volumeInfo
   if (!Array.isArray(info.authors) || info.authors.length === 0) {
     throw errorCon(400, "no se pudo identificar el autor del libro")
   }
+//ESTO CAMBIE para así NO se rinde de una y busca en varios lugares e la API para conseguir la descripcion
+  // 1. Buscamos la descripción en volumeInfo o en searchInfo
+  let descripcion = info.description || volumen.searchInfo?.textSnippet || ""
+
+  // 2. Si viene vacía, pedimos la ficha completa del libro (selfLink)
+  if (!descripcion && volumen.selfLink) {
+    const respDetalle = await fetch(`${volumen.selfLink}?key=${apiKey}`)
+    const detalle = await respDetalle.json()
+    descripcion = detalle.volumeInfo?.description || ""
+  }
+
+  // Limpiamos etiquetas HTML sueltas (como <b> o <br>) que a veces manda Google
+  descripcion = descripcion.replace(/<[^>]*>/g, "")
 
   let portadaUrl = info.imageLinks?.thumbnail 
     ? info.imageLinks.thumbnail.replace("http://", "https://")
@@ -60,7 +74,7 @@ async function obtenerInfoDeGoogle(isbn) {
     autor: info.authors.join(", "),
     portada: portadaUrl,
     genero: deducirGenero(info.categories),
-    descripcion: info.description || ""
+    descripcion: descripcion
   }
 }
 
