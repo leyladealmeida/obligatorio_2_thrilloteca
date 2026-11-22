@@ -149,6 +149,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function abrirDetalleLibro(item) {
     libroAbierto = item || null;
+    resenaActivaParaComentar = null;
+    cargarComentariosDeResena(null);
 
     const imgDetalle = document.querySelector("#seccion-detalle-libro .imagen-portada-rotada");
     const barra = document.getElementById("barra-info-libro");
@@ -1104,6 +1106,9 @@ document.addEventListener("DOMContentLoaded", function () {
         fila.append (texto);
         contenedorResenasLibro.appendChild(fila);
       });
+
+      if (lista.length > 0) { resenaActivaParaComentar = lista[0]; cargarComentariosDeResena(lista[0]._id); }
+
     } catch (error) {
       mostrarMensajeEn(contenedorResenasLibro, "no se pudieron cargar las reseñas");
     }
