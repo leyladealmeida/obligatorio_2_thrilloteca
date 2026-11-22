@@ -1,6 +1,3 @@
-// Cuando se publique en Render, cambiar esta línea (igual que en script-autenticacion.js)
-const BASE_URL = "http://localhost:3000";
-
 // El token que dejó el login. Sin token no hay nada que hacer acá
 const token = localStorage.getItem("token");
 if (!token) {

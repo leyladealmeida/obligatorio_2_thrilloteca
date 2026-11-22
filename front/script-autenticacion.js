@@ -1,6 +1,3 @@
-// Cuando se publique en Render, cambiar SOLO esta línea (clase 13)
-const BASE_URL = "http://localhost:3000"
-
 // ----- referencias al HTML -----
 const formulario = document.querySelector("#formulario-autenticacion")
 const inpCorreo = document.querySelector("#entrada-correo")
