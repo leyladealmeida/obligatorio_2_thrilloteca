@@ -964,17 +964,56 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  let resenaActivaParaComentar = null;
+  const contenedorDestacado = document.getElementById("contenedor-destacado");
+
   function pintarFeedInicio(recientes) {
     if (!contenedorFeed) return;
     if (recientes.length === 0) {
       mostrarMensajeEn(contenedorFeed, "todavía no hay publicaciones de tus amigos");
+      if (contenedorDestacado) mostrarMensajeEn(contenedorDestacado, "no hay libros destacados todavía");
       return;
     }
 
+    // Llenamos Libro Destacado con el primer libro reseñado
+    const destacada = recientes[0];
+    if (contenedorDestacado && destacada.item) {
+      contenedorDestacado.replaceChildren();
+      if (destacada.item.portada) {
+        const img = document.createElement("img");
+        img.src = destacada.item.portada;
+        img.alt = destacada.item.titulo;
+        img.style.width = "100px";
+        img.style.height = "140px";
+        img.style.objectFit = "cover";
+        img.style.border = "2px solid #000";
+        contenedorDestacado.appendChild(img);
+      }
+      const tit = document.createElement("p");
+      tit.className = "titulo-destacado";
+      tit.textContent = destacada.item.titulo;
+
+      const aut = document.createElement("p");
+      aut.className = "autor-destacado";
+      aut.textContent = destacada.item.autor || "";
+
+      const btnVer = document.createElement("button");
+      btnVer.type = "button";
+      btnVer.className = "boton-retro-3d boton-mini";
+      btnVer.textContent = "ver reseñas y comentar";
+      btnVer.addEventListener("click", function () {
+        abrirLibroDesdeFeed(destacada);
+      });
+
+      contenedorDestacado.append(tit, aut, btnVer);
+    }
+
+    // Pintamos el Feed del inicio Amigos para que sean clickeable
     contenedorFeed.replaceChildren();
     recientes.forEach(function (resena) {
       const art = document.createElement("article");
       art.className = "tarjeta-publicacion-retro";
+      art.style.cursor = "pointer";
 
       const enc = document.createElement("p");
       enc.className = "encabezado-publicacion";
@@ -985,9 +1024,31 @@ document.addEventListener("DOMContentLoaded", function () {
       cuerpo.className = "cuerpo-publicacion";
       cuerpo.textContent = "\"" + resena.texto + "\"";
 
-      art.append(enc, cuerpo);
+      const pista = document.createElement("small");
+      pista.textContent = "click para ver y comentar →";
+      pista.style.color = "#3A0F96";
+
+      art.addEventListener("click", function () {
+        abrirLibroDesdeFeed(resena);
+      });
+
+      art.append(enc, cuerpo, pista);
       contenedorFeed.appendChild(art);
     });
+  }
+
+  function abrirLibroDesdeFeed(resena) {
+    resenaActivaParaComentar = resena;
+    const itemDeResena = resena.item;
+    // Si el libro es mío lo busco en todosLosItems; si es de otro usuario uso los datos que vinieron en la reseña
+    const itemLocal = todosLosItems.find(function (i) { return i._id === itemDeResena._id; });
+    abrirDetalleLibro(itemLocal || itemDeResena);
+    // Si el libro es de otro usuario, ocultamos el selector de estado (no es nuestro)
+    if (!itemLocal) {
+      const barra = document.getElementById("barra-info-libro");
+      if (barra) barra.style.display = "none";
+    }
+    cargarComentariosDeResena(resena._id);
   }
 
   async function cargarResenas() {
@@ -1047,6 +1108,165 @@ document.addEventListener("DOMContentLoaded", function () {
       mostrarMensajeEn(contenedorResenasLibro, "no se pudieron cargar las reseñas");
     }
   }
+
+  // ==============================================================
+  // 11. COMENTARIOS REALES CON EL BACK (/api/comentarios)
+  // ==============================================================
+
+  const modalAgregarComentario = document.getElementById("modal-agregar-comentario");
+  const formComentario = document.getElementById("formulario-modal-comentario");
+  const campoTextoComentario = document.getElementById("campo-texto-comentario");
+  const errorComentario = document.getElementById("error-comentario");
+  const botonCancelarComentario = document.getElementById("boton-cancelar-comentario");
+  const botonAgregarComentarioDetalle = document.getElementById("boton-agregar-comentario-libro");
+  const listaComentariosDetalle = document.querySelector("#seccion-detalle-libro .lista-comentarios-desplazable");
+  const contenedorMisComentarios = document.getElementById("contenedor-mis-comentarios");
+
+  if (botonAgregarComentarioDetalle) {
+    botonAgregarComentarioDetalle.addEventListener("click", function () {
+      if (!resenaActivaParaComentar) {
+        alert("Este libro todavía no tiene una reseña seleccionada para comentar.");
+        return;
+      }
+      campoTextoComentario.value = "";
+      errorComentario.classList.remove("activo");
+      modalAgregarComentario.classList.add("modal-activo");
+    });
+  }
+
+  if (botonCancelarComentario) {
+    botonCancelarComentario.addEventListener("click", function () {
+      modalAgregarComentario.classList.remove("modal-activo");
+    });
+  }
+
+  if (formComentario) {
+    formComentario.addEventListener("submit", async function (evento) {
+      evento.preventDefault();
+      errorComentario.classList.remove("activo");
+
+      const texto = campoTextoComentario.value.trim();
+      if (!texto) {
+        errorComentario.textContent = "escribí tu comentario antes de publicar";
+        errorComentario.classList.add("activo");
+        return;
+      }
+
+      try {
+        const resp = await pedirAlBack("/api/comentarios", {
+          method: "POST",
+          body: JSON.stringify({
+            resenaId: resenaActivaParaComentar._id,
+            texto: texto
+          })
+        });
+        const datos = await resp.json();
+        if (!resp.ok) {
+          throw new Error(datos.mensaje || "no se pudo guardar el comentario");
+        }
+
+        modalAgregarComentario.classList.remove("modal-activo");
+        await cargarComentariosDeResena(resenaActivaParaComentar._id);
+        await cargarMisComentarios();
+      } catch (error) {
+        errorComentario.textContent = error.message;
+        errorComentario.classList.add("activo");
+      }
+    });
+  }
+
+  async function cargarComentariosDeResena(idResena) {
+    if (!listaComentariosDetalle) return;
+    if (!idResena) {
+      mostrarMensajeEn(listaComentariosDetalle, "todavía no hay comentarios");
+      return;
+    }
+
+    try {
+      const resp = await pedirAlBack("/api/comentarios/resena/" + idResena);
+      const lista = await resp.json();
+
+      if (!resp.ok || lista.length === 0) {
+        mostrarMensajeEn(listaComentariosDetalle, "todavía no hay comentarios");
+        return;
+      }
+
+      listaComentariosDetalle.replaceChildren();
+      lista.forEach(function (com) {
+        const tarjeta = document.createElement("div");
+        tarjeta.className = "tarjeta-comentario-negra";
+
+        const info = document.createElement("div");
+        info.className = "info-comentario-negro";
+
+        const p = document.createElement("p");
+        p.className = "texto-comentario-negro";
+        const autor = com.usuario && com.usuario.email ? com.usuario.email.split("@")[0] : "usuario";
+        p.textContent = autor + ": " + com.texto;
+
+        info.appendChild(p);
+        tarjeta.appendChild(info);
+        listaComentariosDetalle.appendChild(tarjeta);
+      });
+    } catch (error) {
+      mostrarMensajeEn(listaComentariosDetalle, "error al cargar comentarios");
+    }
+  }
+
+  async function cargarMisComentarios() {
+    if (!contenedorMisComentarios) return;
+    try {
+      const resp = await pedirAlBack("/api/comentarios");
+      const lista = await resp.json();
+
+      if (!resp.ok || lista.length === 0) {
+        mostrarMensajeEn(contenedorMisComentarios, "todavía no hiciste ningún comentario");
+        return;
+      }
+
+      contenedorMisComentarios.replaceChildren();
+      lista.forEach(function (com) {
+        const tarjeta = document.createElement("article");
+        tarjeta.className = "tarjeta-comentario-grilla";
+
+        const cuerpo = document.createElement("div");
+        cuerpo.className = "cuerpo-comentario-grilla";
+
+        const h5 = document.createElement("h5");
+        h5.className = "titulo-origen-comentario";
+        h5.textContent = "EN RESEÑA DE: " + com.resena.item.titulo;
+
+        const p = document.createElement("p");
+        p.className = "parrafo-comentario";
+        p.textContent = com.texto;
+
+        const acciones = document.createElement("div");
+        acciones.className = "acciones-comentario-grilla";
+
+        const btnBorrar = document.createElement("button");
+        btnBorrar.type = "button";
+        btnBorrar.className = "boton-retro-3d boton-mini boton-eliminar";
+        btnBorrar.textContent = "eliminar";
+        btnBorrar.addEventListener("click", async function () {
+          if (!confirm("¿Eliminar este comentario?")) return;
+          const r = await pedirAlBack("/api/comentarios/" + com._id, { method: "DELETE" });
+          if (r.ok) {
+            await cargarMisComentarios();
+            if (resenaActivaParaComentar) await cargarComentariosDeResena(resenaActivaParaComentar._id);
+          }
+        });
+
+        acciones.appendChild(btnBorrar);
+        cuerpo.append(h5, p, acciones);
+        tarjeta.appendChild(cuerpo);
+        contenedorMisComentarios.appendChild(tarjeta);
+      });
+    } catch (error) {
+      console.error("Error cargando mis comentarios:", error);
+    }
+  }
+
+  cargarMisComentarios();
 
   // ----- PEDIR LA LISTA Y PINTAR TODAS LAS PANTALLAS -----
 
