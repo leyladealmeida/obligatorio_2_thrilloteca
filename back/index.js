@@ -9,6 +9,7 @@ import itemsRouter from "./routes/items.routes.js"
 import resenasRouter from "./routes/resenas.routes.js"
 import comentariosRouter from "./routes/comentarios.routes.js"
 import { pedirToken } from "./middlewares/autorizacion.middleware.js"
+import { buscarExternos } from "./controllers/items.controller.js"
 
 await conectarBase()
 
@@ -37,6 +38,8 @@ app.use("/api/items", pedirToken, itemsRouter)
 app.use("/api/resenas", pedirToken, resenasRouter)
 
 app.use("/api/comentarios", pedirToken, comentariosRouter)
+
+app.get("/api/libros/buscar", pedirToken, buscarExternos)
 
 // 404 general
 app.use((req, res) => {

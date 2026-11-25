@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
-
 import bcrypt from "bcryptjs"
-import { buscarPorEmail, guardar } from "../repositories/usuarios.repository.js"
+import { buscarPorEmail, guardar, actualizarAvatar } from "../repositories/usuarios.repository.js"
+import { AVATARES } from "../models/usuario.js"
 
 // Un error normal, pero con un número adentro (el código HTTP)
 function errorCon(status, mensaje) {
@@ -38,6 +38,7 @@ function sinPassword(usuario) {
   return {
     _id: usuario._id,
     email: usuario.email,
+    avatar: usuario.avatar || "img/avatar1.png",
     fechaDeCreacion: usuario.fechaDeCreacion
   }
 }
@@ -48,7 +49,8 @@ export async function registrarUsuario(datos) {
   const hash = await bcrypt.hash(limpios.password, 10)
   const guardado = await guardar({                   // 3) guardar
     email: limpios.email,
-    password: hash                                   // el hash, no la contraseña
+    password: hash,                                  // el hash, no la contraseña
+    avatar: AVATARES.includes(datos.avatar) ? datos.avatar : "img/avatar1.png"
   })
   return sinPassword(guardado)
 }
@@ -74,4 +76,15 @@ export async function loginUsuario(datos) {
   )
 
   return { token: token, usuario: sinPassword(usuario) }
+}
+
+export async function cambiarAvatarUsuario(idUsuario, avatar) {
+  if (!AVATARES.includes(avatar)) {
+    throw errorCon(400, "elegí un avatar válido de la lista")
+  }
+  const actualizado = await actualizarAvatar(idUsuario, avatar)
+  if (!actualizado) {
+    throw errorCon(404, "usuario no encontrado")
+  }
+  return sinPassword(actualizado)
 }

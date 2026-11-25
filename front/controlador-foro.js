@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (botonExplorar) {
     botonExplorar.addEventListener("click", function () {
       mostrarVista("seccion-explorar", "explorar");
+      pintarExplorar();
       cambiarConsejo(
         "¡Hola! En explorar podés ver libros de los géneros que se ofrecen en este foro"
       );
@@ -171,7 +172,12 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("detalle-genero").textContent = "género: " + (item.genero || "suspenso");
       document.getElementById("detalle-descripcion").textContent = item.descripcion || "este libro no tiene descripción guardada";
       document.getElementById("detalle-estado").value = item.estado;
-      barra.style.display = "flex";
+      const selectGeneroDetalle = document.getElementById("detalle-genero-select");
+      if (selectGeneroDetalle) {
+        selectGeneroDetalle.value = item.genero || "suspenso";
+      }
+      // si el libro es de otro usuario y todavía no lo tengo, no tiene sentido cambiar su estado
+      barra.style.display = item.yaLoTenes === false ? "none" : "flex";
     } else {
       // Se llegó desde una tarjeta de ejemplo (sin datos de la base)
       if (imgDetalle) {
@@ -180,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
       barra.style.display = "none";
     }
 
-      cargarResenasDeLibro(item ? item._id : null); 
+    cargarResenasDeLibro(item ? item._id : null);
 
     mostrarVista("seccion-detalle-libro", "detalle del libro");
     cambiarConsejo("Puedes cambiar el estado de tu libro desde acá");
@@ -189,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const todasLasPortadas = document.querySelectorAll(".portada-clickeable");
 
   for (let p = 0; p < todasLasPortadas.length; p++) {
-    todasLasPortadas[p].addEventListener("click", function() {
+    todasLasPortadas[p].addEventListener("click", function () {
       abrirDetalleLibro();
     });
   }
@@ -199,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
   );
 
   for (let d = 0; d < botonesIrDetalleLibro.length; d++) {
-    botonesIrDetalleLibro[d].addEventListener("click", function() {
+    botonesIrDetalleLibro[d].addEventListener("click", function () {
       abrirDetalleLibro();
     });
   }
@@ -273,6 +279,7 @@ document.addEventListener("DOMContentLoaded", function () {
       evento.preventDefault();
 
       const valorIngresado = campoIsbn.value.trim();
+      const selectGeneroIsbn = document.getElementById("select-genero-isbn");
 
       if (valorIngresado === "" || valorIngresado.length < 9) {
         textoErrorIsbn.textContent = "ingresá un número de ISBN válido";
@@ -285,6 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
           body: JSON.stringify({
             isbn: valorIngresado,
+            genero: selectGeneroIsbn ? selectGeneroIsbn.value : "suspenso",
             estado: "leer-mas-tarde"
           })
         });
@@ -295,7 +303,6 @@ document.addEventListener("DOMContentLoaded", function () {
           throw new Error(datos.mensaje || "error al guardar el libro");
         }
 
-        // Cartel de aviso de éxito 
         alert("¡Libro '" + datos.titulo + "' agregado con éxito a Thrilloteca!");
 
         textoErrorIsbn.classList.remove("activo");
@@ -346,12 +353,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  /* configurarModalEliminar(
-    modalEliminarLibro,
-    "boton-confirmar-eliminar-libro",
-    "boton-cancelar-eliminar-libro"
-  ); 
-  !!!!esto lo cambio por esto nuevo!!!!!*/
   const botonConfirmarEliminarLibro = document.getElementById("boton-confirmar-eliminar-libro");
   const botonCancelarEliminarLibro = document.getElementById("boton-cancelar-eliminar-libro");
 
@@ -500,6 +501,9 @@ document.addEventListener("DOMContentLoaded", function () {
   let libroAbierto = null;
   let generoActual = "suspenso";
   let textoBusqueda = "";
+  let itemsExplorar = [];     // biblioteca abierta: libros de TODOS los usuarios (mis libros incluidos)
+  const cacheGoogle = {};     // sugerencias de Google Books ya pedidas, por género (así no se repite el pedido)
+  let pedidoExplorar = 0;     // para ignorar respuestas viejas si el usuario cambia de pestaña rápido
 
   const contenedorLibrosGuardados = document.getElementById("contenedor-libros-guardados");
   const contenedorProgreso = document.getElementById("contenedor-libros-progreso");
@@ -523,6 +527,32 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!respuesta.ok) {
       throw new Error(datos.mensaje);
     }
+    return datos;
+  }
+
+  // GET /api/items/explorar -> libros guardados por la comunidad (con "guardadoPor" y "yaLoTenes")
+  async function obtenerExplorar() {
+    const respuesta = await pedirAlBack("/api/items/explorar");
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(datos.mensaje);
+    }
+    return datos;
+  }
+
+  // GET /api/libros/buscar?genero=terror -> sugerencias de Google Books (se guardan en cacheGoogle)
+  async function obtenerLibrosGoogle(genero) {
+    if (cacheGoogle[genero]) {
+      return cacheGoogle[genero];
+    }
+    const respuesta = await pedirAlBack("/api/libros/buscar?genero=" + genero);
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(datos.mensaje || "no se pudo buscar");
+    }
+    cacheGoogle[genero] = datos;
     return datos;
   }
 
@@ -564,6 +594,10 @@ document.addEventListener("DOMContentLoaded", function () {
       img.style.width = "100%";
       img.style.height = "100%";
       img.style.objectFit = "cover";
+      img.addEventListener("error", function () {
+        portada.replaceChildren();
+        portada.textContent = "sin portada";
+      });
       portada.appendChild(img);
     } else {
       portada.textContent = "sin portada";
@@ -632,33 +666,195 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function pintarExplorar() {
-    const termino = textoBusqueda.toLowerCase();
+  // Saca mayúsculas y tildes: "Misería" y "miseria" cuentan como lo mismo
+  function normalizar(texto) {
+    return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
 
-    // Si hay búsqueda se busca en todos los géneros; si no, se filtra por el género elegido
-    marcarFiltroActivo(termino ? null : generoActual);
+  // Casilla de un libro de la COMUNIDAD (puede ser mío o de otro usuario)
+  function crearCasillaComunidad(item) {
+    const casilla = crearCasilla(item, "casilla-libro-explorar", "boton-eliminar-libro-explorar");
+    const botonViejo = casilla.querySelector("button");
+    // cloneNode(false) NO copia el listener de "eliminar" que traía el botón
+    const boton = botonViejo.cloneNode(false);
+    boton.className = "boton-retro-3d boton-mini";
 
-    const resultados = todosLosItems.filter(function (item) {
-      if (termino) {
-        return (item.titulo + " " + item.autor).toLowerCase().includes(termino);
+    if (item.yaLoTenes) {
+      boton.textContent = "en tu biblioteca";
+      boton.disabled = true;
+    } else {
+      boton.textContent = "+ leer más tarde";
+      boton.addEventListener("click", async function () {
+        try {
+          const resp = await pedirAlBack("/api/items/copiar/" + item._id, { method: "POST" });
+          const datos = await resp.json();
+          if (!resp.ok) {
+            throw new Error(datos.mensaje);
+          }
+          alert("¡'" + datos.titulo + "' agregado a tu lista Leer más tarde!");
+          await recargarTodo();
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+    }
+    botonViejo.replaceWith(boton);
+
+    const cuantos = document.createElement("p");
+    cuantos.className = "autor-portada-item";
+    cuantos.textContent = "guardado por " + item.guardadoPor;
+    casilla.querySelector(".datos-libro-guardado").appendChild(cuantos);
+
+    return casilla;
+  }
+
+  // Casilla de una SUGERENCIA de Google Books (todavía no está en la base de Thrilloteca)
+  function crearCasillaGoogle(libro) {
+    const casilla = document.createElement("div");
+    casilla.className = "casilla-libro-explorar";
+
+    const portada = document.createElement("div");
+    portada.className = "caja-portada-blanca";
+    if (libro.portada) {
+      const img = document.createElement("img");
+      img.src = libro.portada;
+      img.alt = libro.titulo;
+      img.style.width = "100%";
+      img.style.height = "100%";
+      img.style.objectFit = "cover";
+      img.addEventListener("error", function () {
+        portada.replaceChildren();
+        portada.textContent = "sin portada";
+      });
+      portada.appendChild(img);
+    } else {
+      portada.textContent = "sin portada";
+    }
+
+    const datosLibro = document.createElement("div");
+    datosLibro.className = "datos-libro-guardado";
+
+    const titulo = document.createElement("p");
+    titulo.className = "titulo-portada-item";
+    titulo.textContent = libro.titulo;
+
+    const autor = document.createElement("p");
+    autor.className = "autor-portada-item";
+    autor.textContent = libro.autor;
+
+    const origen = document.createElement("p");
+    origen.className = "autor-portada-item";
+    origen.textContent = "sugerido";
+
+    datosLibro.append(titulo, autor, origen);
+
+    const botonAgregar = document.createElement("button");
+    botonAgregar.type = "button";
+    botonAgregar.className = "boton-retro-3d boton-mini";
+    botonAgregar.textContent = "+ leer más tarde";
+    botonAgregar.addEventListener("click", async function () {
+      try {
+        const r = await pedirAlBack("/api/items", {
+          method: "POST",
+          body: JSON.stringify({
+            titulo: libro.titulo,
+            autor: libro.autor,
+            portada: libro.portada,
+            descripcion: libro.descripcion,
+            genero: libro.genero || generoActual,
+            estado: "leer-mas-tarde"
+          })
+        });
+        const guardado = await r.json();
+        if (!r.ok) {
+          throw new Error(guardado.mensaje || "no se pudo agregar");
+        }
+        alert("¡'" + guardado.titulo + "' agregado a tu lista Leer más tarde!");
+        await recargarTodo();
+      } catch (error) {
+        alert(error.message);
       }
-      return item.genero === generoActual;
     });
 
-    if (resultados.length === 0) {
-      mostrarMensajeEn(
-        contenedorExplorar,
-        termino ? "no hay libros que coincidan con \"" + textoBusqueda + "\"" : "no tenés libros de este género"
-      );
+    casilla.append(portada, datosLibro, botonAgregar);
+    return casilla;
+  }
+
+  // EXPLORAR = biblioteca abierta:
+  //   - con búsqueda: busca en mis libros y en los de la comunidad
+  //   - sin búsqueda: el género elegido, con los libros de la comunidad (míos y de otros)
+  //     y, después, sugerencias de Google Books de ese mismo género
+  async function pintarExplorar() {
+    const miPedido = ++pedidoExplorar;
+    const termino = normalizar(textoBusqueda);
+
+    if (termino) {
+      marcarFiltroActivo(null);
+      const resultados = itemsExplorar.filter(function (item) {
+        return normalizar(item.titulo + " " + item.autor).includes(termino);
+      });
+
+      if (resultados.length === 0) {
+        mostrarMensajeEn(contenedorExplorar, "no hay libros que coincidan con \"" + textoBusqueda + "\"");
+        return;
+      }
+
+      contenedorExplorar.replaceChildren();
+      resultados.forEach(function (item) {
+        contenedorExplorar.appendChild(crearCasillaComunidad(item));
+      });
       return;
     }
 
-    contenedorExplorar.replaceChildren();
-    resultados.forEach(function (item) {
-      contenedorExplorar.appendChild(
-        crearCasilla(item, "casilla-libro-explorar", "boton-eliminar-libro-explorar")
-      );
+    marcarFiltroActivo(generoActual);
+    const delGenero = itemsExplorar.filter(function (item) {
+      return item.genero === generoActual;
     });
+
+    // Primero se muestran enseguida los de la comunidad; las sugerencias se suman cuando llegan
+    if (delGenero.length === 0) {
+      mostrarMensajeEn(contenedorExplorar, "buscando libros de " + generoActual + "...");
+    } else {
+      contenedorExplorar.replaceChildren();
+      delGenero.forEach(function (item) {
+        contenedorExplorar.appendChild(crearCasillaComunidad(item));
+      });
+    }
+
+    let sugeridos = [];
+    let errorGoogle = "";
+    try {
+      sugeridos = await obtenerLibrosGoogle(generoActual);
+    } catch (error) {
+      console.error("No se pudieron traer sugerencias de Google Books:", error);
+      errorGoogle = error.message;
+    }
+
+    // Si mientras esperábamos el usuario cambió de pestaña, esta respuesta ya no corresponde
+    if (miPedido !== pedidoExplorar) {
+      return;
+    }
+
+    if (delGenero.length === 0) {
+      contenedorExplorar.replaceChildren();
+    }
+
+    // No repetimos sugerencias de libros que ya están en la comunidad
+    const titulosEnComunidad = new Set(itemsExplorar.map(function (item) {
+      return normalizar(item.titulo);
+    }));
+    sugeridos.forEach(function (libro) {
+      if (!titulosEnComunidad.has(normalizar(libro.titulo))) {
+        contenedorExplorar.appendChild(crearCasillaGoogle(libro));
+      }
+    });
+
+    if (contenedorExplorar.children.length === 0) {
+      mostrarMensajeEn(
+        contenedorExplorar,
+        errorGoogle ? "no se pudieron cargar sugerencias: " + errorGoogle : "todavía no hay libros de este género"
+      );
+    }
   }
 
   if (formularioBusqueda) {
@@ -777,7 +973,16 @@ document.addEventListener("DOMContentLoaded", function () {
       : "libros leídos: " + leidos.length;
   }
 
-  // ----- PERFIL (sale del usuario que dejó el login) -----
+  // ----- PERFIL Y SELECCIÓN DE AVATAR -----
+
+  const imagenAvatarPerfil = document.getElementById("imagen-avatar-perfil");
+  const modalElegirAvatar = document.getElementById("modal-elegir-avatar");
+  const botonCambiarAvatar = document.getElementById("boton-cambiar-avatar");
+  const botonConfirmarAvatar = document.getElementById("boton-confirmar-avatar");
+  const botonCancelarAvatar = document.getElementById("boton-cancelar-avatar");
+  const opcionesAvatar = document.querySelectorAll(".opcion-avatar-btn");
+  const errorAvatar = document.getElementById("error-avatar");
+  let avatarSeleccionadoTemp = "img/avatar1.png";
 
   function pintarPerfil() {
     let usuario = null;
@@ -791,12 +996,73 @@ document.addEventListener("DOMContentLoaded", function () {
       nombreUsuario.textContent = usuario.email.split("@")[0];
     }
 
+    if (imagenAvatarPerfil) {
+      imagenAvatarPerfil.src = (usuario && usuario.avatar) ? usuario.avatar : "img/avatar1.png";
+    }
+
     const leyendo = todosLosItems.filter(function (item) {
       return item.estado === "leyendo";
     }).length;
 
     biografiaUsuario.textContent =
       todosLosItems.length + " libros en tu biblioteca, " + leyendo + " leyendo ahora.";
+  }
+
+  if (botonCambiarAvatar) {
+    botonCambiarAvatar.addEventListener("click", function () {
+      let usuario = null;
+      try {
+        usuario = JSON.parse(localStorage.getItem("usuario"));
+      } catch (e) {
+        usuario = null;
+      }
+      avatarSeleccionadoTemp = (usuario && usuario.avatar) ? usuario.avatar : "img/avatar1.png";
+
+      opcionesAvatar.forEach(function (btn) {
+        btn.classList.toggle("avatar-seleccionado", btn.dataset.avatar === avatarSeleccionadoTemp);
+      });
+      errorAvatar.classList.remove("activo");
+      modalElegirAvatar.classList.add("modal-activo");
+    });
+  }
+
+  opcionesAvatar.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      avatarSeleccionadoTemp = this.dataset.avatar;
+      opcionesAvatar.forEach(function (b) {
+        b.classList.remove("avatar-seleccionado");
+      });
+      this.classList.add("avatar-seleccionado");
+    });
+  });
+
+  if (botonCancelarAvatar) {
+    botonCancelarAvatar.addEventListener("click", function () {
+      modalElegirAvatar.classList.remove("modal-activo");
+    });
+  }
+
+  if (botonConfirmarAvatar) {
+    botonConfirmarAvatar.addEventListener("click", async function () {
+      errorAvatar.classList.remove("activo");
+      try {
+        const resp = await pedirAlBack("/api/usuarios/avatar", {
+          method: "PUT",
+          body: JSON.stringify({ avatar: avatarSeleccionadoTemp })
+        });
+        const usuarioActualizado = await resp.json();
+        if (!resp.ok) {
+          throw new Error(usuarioActualizado.mensaje || "no se pudo cambiar el avatar");
+        }
+
+        localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
+        pintarPerfil();
+        modalElegirAvatar.classList.remove("modal-activo");
+      } catch (error) {
+        errorAvatar.textContent = error.message;
+        errorAvatar.classList.add("activo");
+      }
+    });
   }
 
   // ----- CAMBIAR EL ESTADO DESDE EL DETALLE DEL LIBRO -----
@@ -807,14 +1073,28 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      const selectGeneroDetalle = document.getElementById("detalle-genero-select");
+
       try {
-        await cambiarEstadoEnBack(libroAbierto._id, selectEstado.value);
+        const respuesta = await pedirAlBack("/api/items/" + libroAbierto._id, {
+          method: "PUT",
+          body: JSON.stringify({
+            estado: selectEstado.value,
+            genero: selectGeneroDetalle ? selectGeneroDetalle.value : libroAbierto.genero
+          })
+        });
+        const datos = await respuesta.json();
+        if (!respuesta.ok) {
+          throw new Error(datos.mensaje);
+        }
+
         const idActual = libroAbierto._id;
         await recargarTodo();
         libroAbierto = todosLosItems.find(function (item) {
           return item._id === idActual;
         }) || libroAbierto;
-        mensajeDetalle.textContent = "estado actualizado";
+        document.getElementById("detalle-genero").textContent = "género: " + libroAbierto.genero;
+        mensajeDetalle.textContent = "cambios guardados";
       } catch (error) {
         mensajeDetalle.textContent = error.message;
       }
@@ -969,7 +1249,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function pintarFeedInicio(recientes) {
     if (!contenedorFeed) return;
     if (recientes.length === 0) {
-      mostrarMensajeEn(contenedorFeed, "todavía no hay publicaciones de tus amigos");
+      mostrarMensajeEn(contenedorFeed, "todavía no hay reseñas publicadas");
       if (contenedorDestacado) mostrarMensajeEn(contenedorDestacado, "no hay libros destacados todavía");
       return;
     }
@@ -1100,11 +1380,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const estrellas = "★".repeat(resena.calificacion);
         texto.textContent = autor + " (" + estrellas + "): " + resena.texto;
 
-        fila.append (texto);
+        fila.append(texto);
         contenedorResenasLibro.appendChild(fila);
       });
 
-      if (lista.length > 0) { resenaActivaParaComentar = lista[0]; cargarComentariosDeResena(lista[0]._id); }
+      if (lista.length > 0) {
+        resenaActivaParaComentar = lista[0];
+        cargarComentariosDeResena(lista[0]._id);
+      }
 
     } catch (error) {
       mostrarMensajeEn(contenedorResenasLibro, "no se pudieron cargar las reseñas");
@@ -1177,7 +1460,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
- async function cargarComentariosDeResena(idResena) {
+  async function cargarComentariosDeResena(idResena) {
     if (!listaComentariosDetalle) return;
     if (!idResena) {
       mostrarMensajeEn(listaComentariosDetalle, "todavía no hay comentarios");
@@ -1307,9 +1590,21 @@ document.addEventListener("DOMContentLoaded", function () {
   async function recargarTodo() {
     try {
       todosLosItems = await obtenerItems();
+
+      // Explorar va aparte: si falla, el resto de las pantallas sigue andando
+      try {
+        itemsExplorar = await obtenerExplorar();
+      } catch (errorExplorar) {
+        console.error("No se pudo cargar Explorar:", errorExplorar);
+        itemsExplorar = [];
+      }
+
       pintarLeerMasTarde();
       pintarBiblioteca();
-      pintarExplorar();
+      // Explorar pide sugerencias a Google Books: solo lo repintamos si el usuario lo está viendo
+      if (document.getElementById("seccion-explorar").classList.contains("vista-activa")) {
+        pintarExplorar();
+      }
       pintarPerfil();
       cargarResenas();
     } catch (error) {

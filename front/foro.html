@@ -56,10 +56,7 @@
             <!-- Columna Lateral Izquierda (Perfil de Usuario) -->
             <aside class="columna-perfil-usuario">
                 <div class="marco-avatar-retro">
-                    <img src="foto_perfil.png" alt="Avatar" class="imagen-avatar" onerror="this.style.display='none'">
-                    <div class="avatar-reemplazo-degrade">
-                        <span class="icono-fantasma-pixel"></span>
-                    </div>
+                    <img src="img/avatar1.png" alt="Avatar" class="imagen-avatar" id="imagen-avatar-perfil">
                 </div>
 
                 <div class="informacion-usuario">
@@ -68,6 +65,9 @@
                 </div>
 
                 <div class="acciones-perfil">
+                    <button type="button" class="boton-retro-3d boton-ancho-completo" id="boton-cambiar-avatar">
+                        cambiar avatar
+                    </button>
                     <button type="button" class="boton-retro-3d boton-ancho-completo" id="boton-explorar">
                         explorar
                     </button>
@@ -84,10 +84,10 @@
                 <section class="vista-seccion vista-activa" id="seccion-inicio">
                     <div class="cuadricula-dos-columnas">
                         <div class="panel-lila-3d">
-                            <h4 class="rotulo-seccion-pixel">FEED DE AMIGOS</h4>
+                            <h4 class="rotulo-seccion-pixel">RESEÑAS</h4>
                             <div class="lista-tarjetas-feed">
-                                    <p class="mensaje-vacio">todavía no hay publicaciones de tus amigos</p>
-                                </div>
+                                <p class="mensaje-vacio">todavía no hay reseñas publicadas</p>
+                            </div>
                         </div>
 
                         <div class="panel-lila-3d">
@@ -112,14 +112,7 @@
 
                         <div class="panel-lila-3d panel-ultimos-leidos">
                             <span class="subtitulo-seccion-mono">tus últimos libros leídos</span>
-                            <div class="estanteria-libros-retro" id="estanteria-leidos">
-                                <!-- <div class="lomo-grafico barra-1"></div>
-                                <div class="lomo-grafico barra-2"></div>
-                                <div class="lomo-grafico barra-3"></div>
-                                <div class="lomo-grafico barra-4"></div>
-                                <div class="lomo-grafico barra-5"></div> -->
-                            </div>
-                            <!-- <div class="base-estante-madera"></div> -->
+                            <div class="estanteria-libros-retro" id="estanteria-leidos"></div>
                             <p class="texto-estante-fecha" id="texto-estante-fecha"></p>
                             <p class="texto-estante-ayuda">tocá un lomo para ver tu reseña</p>
 
@@ -136,15 +129,15 @@
                         <div class="panel-lila-3d columna-amplia">
                             <span class="subtitulo-seccion-mono">tus reseñas más recientes</span>
                             <div class="lista-elementos-vertical" id="contenedor-mis-resenas">
-                                    <p class="mensaje-vacio">todavía no escribiste ninguna reseña</p>
-                                </div>
+                                <p class="mensaje-vacio">todavía no escribiste ninguna reseña</p>
+                            </div>
                         </div>
 
                         <div class="panel-lila-3d columna-lateral-comentarios">
-                            <span class="subtitulo-seccion-mono">comentarios recientes de amigos en tus reseñas:</span>
+                            <span class="subtitulo-seccion-mono">comentarios recientes en tus reseñas:</span>
                             <div class="lista-comentarios-recibidos">
-                                    <p class="mensaje-vacio">todavía no hay comentarios en tus reseñas</p>
-                                </div>
+                                <p class="mensaje-vacio">todavía no hay comentarios en tus reseñas</p>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -237,7 +230,13 @@
                                 <option value="leyendo">leyendo</option>
                                 <option value="leido">leído</option>
                             </select>
-                            <button type="button" class="boton-retro-3d boton-mini" id="boton-guardar-estado">guardar estado</button>
+                            <label for="detalle-genero-select" class="etiqueta-formulario">género:</label>
+                            <select id="detalle-genero-select" class="campo-retro campo-select-estado">
+                                <option value="suspenso">suspenso</option>
+                                <option value="terror">terror</option>
+                                <option value="thriller">thriller</option>
+                            </select>
+                            <button type="button" class="boton-retro-3d boton-mini" id="boton-guardar-estado">guardar cambios</button>
                         </div>
                         <p class="mensaje-info-libro" id="detalle-mensaje"></p>
                     </div>
@@ -269,7 +268,6 @@
 
                             <div class="acciones-columna-comentarios">
                                 <button type="button" class="boton-retro-3d boton-mini boton-ancho-completo" id="boton-agregar-comentario-libro">agregar comentario</button>
-                               
                             </div>
                         </aside>
                     </div>
@@ -330,6 +328,11 @@
                 <h3 class="etiqueta-modal-mono">ingresa el numero de ISBN</h3>
                 <form class="formulario-modal-isbn" id="formulario-modal-isbn" novalidate>
                     <input type="text" id="campo-numero-isbn" class="campo-retro campo-modal-ancho" placeholder="9780307743657" autocomplete="off">
+                    <select id="select-genero-isbn" class="campo-retro campo-modal-ancho">
+                        <option value="suspenso">suspenso</option>
+                        <option value="terror">terror</option>
+                        <option value="thriller">thriller</option>
+                    </select>
                     <span class="mensaje-error-modal" id="error-isbn">ingresa un numero valido</span>
                     <div class="botones-fila-modal">
                         <button type="submit" class="boton-retro-3d" id="boton-confirmar-isbn">confirmar</button>
@@ -427,6 +430,39 @@
                         <button type="button" class="boton-retro-3d" id="boton-cancelar-comentario">cancelar</button>
                     </div>
                 </form>
+            </div>
+            <div class="franja-degrade-modal"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Elegir Avatar -->
+    <div class="capa-fondo-modal" id="modal-elegir-avatar" aria-hidden="true">
+        <div class="estructura-ventana-modal">
+            <div class="franja-degrade-modal"></div>
+            <div class="cuerpo-modal-lila">
+                <h3 class="etiqueta-modal-mono">elegí tu avatar</h3>
+                <div class="grilla-avatares-modal" id="grilla-avatares-modal">
+                    <button type="button" class="opcion-avatar-btn" data-avatar="img/avatar1.png">
+                        <img src="img/avatar1.png" alt="Avatar 1">
+                    </button>
+                    <button type="button" class="opcion-avatar-btn" data-avatar="img/avatar2.png">
+                        <img src="img/avatar2.png" alt="Avatar 2">
+                    </button>
+                    <button type="button" class="opcion-avatar-btn" data-avatar="img/avatar3.png">
+                        <img src="img/avatar3.png" alt="Avatar 3">
+                    </button>
+                    <button type="button" class="opcion-avatar-btn" data-avatar="img/avatar4.png">
+                        <img src="img/avatar4.png" alt="Avatar 4">
+                    </button>
+                    <button type="button" class="opcion-avatar-btn" data-avatar="img/avatar5.png">
+                        <img src="img/avatar5.png" alt="Avatar 5">
+                    </button>
+                </div>
+                <span class="mensaje-error-modal" id="error-avatar"></span>
+                <div class="botones-fila-modal">
+                    <button type="button" class="boton-retro-3d" id="boton-confirmar-avatar">guardar</button>
+                    <button type="button" class="boton-retro-3d" id="boton-cancelar-avatar">cancelar</button>
+                </div>
             </div>
             <div class="franja-degrade-modal"></div>
         </div>

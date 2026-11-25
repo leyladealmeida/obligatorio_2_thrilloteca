@@ -40,3 +40,8 @@ export async function actualizar(id, datos) {
   // runValidators: true -> en los updates Mongoose NO revisa el enum si no se pide
   return await Item.findByIdAndUpdate(id, datos, { new: true, runValidators: true })
 }
+
+// Todos los libros de todos los usuarios (para Explorar)
+export async function buscarTodos() {
+  return await Item.find().sort({ fechaDeCreacion: -1 }).lean()
+}
